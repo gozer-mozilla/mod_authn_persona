@@ -42,7 +42,7 @@
 
 /** Generates a signature with the given inputs, returning a Base64-encoded
  * signature value. */
-static char *generateSignature(request_rec *r, const buffer_t *secret,
+static char *generateSignature(apr_pool_t *p, const buffer_t *secret,
                                const char *userAddress, const char *issuer)
 {
   apr_sha1_ctx_t context;
@@ -53,7 +53,7 @@ static char *generateSignature(request_rec *r, const buffer_t *secret,
   unsigned char digest[20];
   apr_sha1_final(digest, &context);
 
-  char * digest64 = apr_palloc(r->pool, apr_base64_encode_len(20));
+  char * digest64 = apr_palloc(p, apr_base64_encode_len(20));
   apr_base64_encode(digest64, (char*)digest, 20);
   return digest64;
 }
@@ -114,7 +114,7 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCook
     return NULL;
   }
 
-  char *digest64 = generateSignature(r, secret, addr, iss);
+  char *digest64 = generateSignature(r->pool, secret, addr, iss);
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, ERRTAG "Got cookie: email is %s; expected digest is %s; got digest %s",
                 addr, digest64, sig);
 
@@ -133,7 +133,7 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCook
 /** Create a session cookie with a given identity */
 void sendSignedCookie(request_rec *r, const buffer_t *secret, const Cookie cookie)
 {
-  char *digest64 = generateSignature(r, secret, cookie->verifiedEmail, cookie->identityIssuer);
+  char *digest64 = generateSignature(r->pool, secret, cookie->verifiedEmail, cookie->identityIssuer);
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie",
                 apr_psprintf(r->pool, "%s=%s|%s|%s; Path=/",
