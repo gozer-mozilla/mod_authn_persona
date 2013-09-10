@@ -2,9 +2,11 @@ ifeq ($(APXS_PATH),)
 APXS_PATH=/usr/sbin/apxs
 endif
 
-MY_LDFLAGS=-lcurl -lyajl
+APREQ_CONFIG := apreq2-config
+
+MY_LDFLAGS=-lcurl -lyajl `$(APREQ_CONFIG) --link-libtool`
 # Note that gcc flags are passed through apxs, so preface with -Wc
-MY_CFLAGS=-Wc,-I. -Wc,-Wall -Wc,-g -Wc,-Wno-unused-function
+MY_CFLAGS=-Wc,-I. -Wc,-Wall -Wc,-g -Wc,-Wno-unused-function `$(APREQ_CONFIG) --includes`
 SRCS=src/mod_authn_persona.c src/cookie.c src/verify.c
 HDRS=src/cookie.h src/defines.h src/verify.h
 BUILDDIR := build
