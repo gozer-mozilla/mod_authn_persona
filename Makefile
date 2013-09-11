@@ -8,6 +8,7 @@ MY_CFLAGS=-Wc,-I. -Wc,-Wall -Wc,-g -Wc,-Wno-unused-function
 SRCS=src/mod_authn_persona.c src/cookie.c src/verify.c src/hmac.c
 HDRS=src/cookie.h src/defines.h src/verify.h src/hmac.h
 BUILDDIR := build
+PERL := perl
 
 .SUFFIXES: .c .o .la
 
@@ -31,6 +32,12 @@ $(BUILDDIR)/.libs/mod_authn_persona.so: $(SRCS) $(HDRS) $(BUILDDIR)/signin_page.
 
 install: all
 	$(APXS_PATH) -i $(BUILDDIR)/mod_authn_persona.la
+
+test: all t/TEST
+	t/TEST -apxs $(APXS_PATH)
+
+t/TEST: t/test.pl
+	$(PERL) t/test.pl
 
 clean:
 	-rm -rf $(BUILDDIR)
