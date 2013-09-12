@@ -40,7 +40,8 @@ my ($domain, $password, $email);
 my $ua = LWP::UserAgent->new;
 $ua->default_header('X-Password' => $password);
 {
-  my $res = $ua->delete("$idp/api/$domain");
+  my $req = HTTP::Request->new("DELETE", "$idp/api/$domain");
+  my $res = $ua->request($req);
   ok $res->is_success;
 }
 
