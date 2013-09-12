@@ -92,7 +92,6 @@ static int user_in_file(request_rec *r, char *username, char *filename)
 static int Auth_persona_check_cookie(request_rec *r)
 {
   char *szCookieValue=NULL;
-  char *szRemoteIP=NULL;
   const char *assertion=NULL;
 
   ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth_persona_check_cookie");
@@ -150,7 +149,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     return OK;
   }
 
-  ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, ERRTAG "Persona cookie not found; not authorized! RemoteIP:%s",szRemoteIP);
+  ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, ERRTAG "Persona cookie not found; not authorized!");
   r->status = HTTP_UNAUTHORIZED;
   ap_set_content_type(r, "text/html");
   ap_rwrite(src_signin_html, sizeof(src_signin_html), r);
