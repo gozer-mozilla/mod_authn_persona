@@ -9,7 +9,8 @@ use Apache::TestUtil;
 
 plan tests => 4, need_module('JSON');
 
-use JSON;
+require JSON;
+JSON->import;
 
 my $idp = "https://testidp.org";
 
@@ -33,7 +34,6 @@ my ($domain, $password, $email);
 
 { #Initial request
   my $res = GET "/";
-  print Dumper($res->code); use Data::Dumper;
   ok t_cmp( $res->code, 401, "Initial request unauthorided");
 }
 
