@@ -53,6 +53,9 @@
 /* apache module name */
 module AP_MODULE_DECLARE_DATA authn_persona_module;
 
+apr_table_t *parseArgs(request_rec *, char *);
+const char* persona_server_secret_option(cmd_parms *, void *, const char *);
+
 /** Given a filename and username, open the file (using normal Apache
  * configuration directory search rules) and search for the given username
  * in it (as a newline-seaparated list) */
