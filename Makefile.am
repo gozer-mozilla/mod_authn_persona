@@ -36,9 +36,6 @@ test: all t/TEST
 t/TEST: build/test.pl
 	$(PERL) build/test.pl -apxs $(APXS)
 
-dist-hook:
-	rm -rf `find $(distdir)/t -name .svn`
-
 rpm: dist
 	rpmbuild -ta $(DIST_ARCHIVES)
 
