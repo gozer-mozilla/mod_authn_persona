@@ -113,7 +113,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   // XXX: only test for post - issue #10
 
   persona_config_t *conf = ap_get_module_config(r->server->module_config, &authn_persona_module);
-  assertion = apr_table_get(r->headers_in, PERSONA_ASSERTION_HEADER);
+  assertion = apr_table_get(r->headers_in, conf->assertion_header);
   if (assertion) {
     VerifyResult res = processAssertion(r, assertion);
 
@@ -142,13 +142,13 @@ static int Auth_persona_check_cookie(request_rec *r)
   }
 
   // if there's a valid cookie, allow the user throught
-  szCookieValue = extractCookie(r, conf->secret, PERSONA_COOKIE_NAME);
+  szCookieValue = extractCookie(r, conf->secret, conf->cookie_name);
 
   Cookie cookie = NULL;
   if (szCookieValue &&
       (cookie = validateCookie(r, conf->secret, szCookieValue))) {
     r->user = (char *) cookie->verifiedEmail;
-    apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
+    apr_table_setn(r->notes, conf->issuer_note, cookie->identityIssuer);
     apr_table_setn(r->subprocess_env, "REMOTE_USER", cookie->verifiedEmail);
     ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, ERRTAG "Valid auth cookie found, passthrough");
     return OK;
@@ -180,6 +180,8 @@ static int Auth_persona_check_auth(request_rec *r)
   const char *szRequireLine;
   char *szFileName;
   char *szRequire_cmd;
+  
+  persona_config_t *conf = ap_get_module_config(r->server->module_config, &authn_persona_module);
 
   ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth_persona_check_auth");
 
@@ -233,7 +235,7 @@ static int Auth_persona_check_auth(request_rec *r)
     // persona-idp: check host part of user name
     else if (!strcmp("persona-idp", szRequire_cmd)) {
       char *reqIdp = ap_getword_conf(r->pool, &szRequireLine);
-      const char *issuer = apr_table_get(r->notes, PERSONA_ISSUER_NOTE);
+      const char *issuer = apr_table_get(r->notes, conf->issuer_note);
       if (!issuer || strcmp(issuer, reqIdp)) {
         char *script = apr_psprintf(r->pool,
                                     "showError({\"status\": \"failure\",\"reason\": \""
@@ -291,9 +293,10 @@ apr_table_t *parseArgs(request_rec *r, char *argStr)
 
 static int processLogout(request_rec *r)
 {
+  persona_config_t *conf = ap_get_module_config(r->server->module_config, &authn_persona_module);
   apr_table_set(r->err_headers_out, "Set-Cookie",
                 apr_psprintf(r->pool, "%s=; Path=/; Expires=Thu, 01-Jan-1970 00:00:01 GMT",
-                             PERSONA_COOKIE_NAME));
+                             conf->cookie_name));
 
   if (r->args) {
     if ( strlen(r->args) > 16384 ) {
@@ -330,20 +333,36 @@ static void register_hooks(apr_pool_t *p)
 }
 
 #define RAND_BYTES_AT_A_TIME 256
-static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
-{
-  persona_config_t *conf = apr_palloc(p, sizeof(*conf));
+
+static void persona_generate_secret(apr_pool_t *p, persona_config_t *conf) {
   apr_random_t *prng = apr_random_standard_new(p);
+  char *secret = apr_palloc(p, conf->secret_size);
+  
   while (apr_random_secure_ready(prng) == APR_ENOTENOUGHENTROPY) {
     unsigned char randbuf[RAND_BYTES_AT_A_TIME];
     apr_generate_random_bytes(randbuf, RAND_BYTES_AT_A_TIME);
     apr_random_add_entropy(prng, randbuf, RAND_BYTES_AT_A_TIME);
   }
-  char *secret = apr_palloc(p, PERSONA_SECRET_SIZE);
-  apr_random_secure_bytes(prng, secret, PERSONA_SECRET_SIZE);
+  
+  apr_random_secure_bytes(prng, secret, conf->secret_size);
+
   conf->secret = apr_palloc(p, sizeof(buffer_t));
-  conf->secret->len = PERSONA_SECRET_SIZE;
+  conf->secret->len = conf->secret_size;
   conf->secret->data = secret;
+}
+
+static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
+{
+  persona_config_t *conf = apr_palloc(p, sizeof(*conf));
+  
+  persona_generate_secret(p, conf);
+  
+  conf->assertion_header = apr_pstrdup(p, PERSONA_ASSERTION_HEADER);
+  conf->cookie_name = apr_pstrdup(p, PERSONA_COOKIE_NAME);
+  conf->issuer_note = apr_pstrdup(p, PERSONA_ISSUER_NOTE);
+  conf->verifier_url= apr_pstrdup(p, PERSONA_DEFAULT_VERIFIER_URL);
+  conf->secret_size = PERSONA_SECRET_SIZE;
+  
   return conf;
 }
 

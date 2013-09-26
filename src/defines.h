@@ -19,6 +19,11 @@ typedef struct buffer {
 
 typedef struct persona_config {
   buffer_t *secret;
+  unsigned int secret_size;
+  char *verifier_url;
+  char *cookie_name;
+  char *issuer_note;
+  char *assertion_header;
 } persona_config_t;
 
 #endif
