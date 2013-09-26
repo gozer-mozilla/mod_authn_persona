@@ -1,0 +1,271 @@
+[Thu Sep 12 14:34:18 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:34:19 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 14:34:19 2013] [notice] Digest: done
+[Thu Sep 12 14:34:19 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:34:20 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 14:34:20 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 14:34:20 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 14:34:20 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 21568 for worker proxy:reverse
+[Thu Sep 12 14:34:20 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 21568 for (*)
+[Thu Sep 12 14:34:20 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:34:20 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:34:20 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:34:26 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:34:26 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:34:26 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie __utma=111872281.678879817.1373212254.1373212254.1373212254.1; __utmz=111872281.1362772697.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __jwpusr=d82b2d80-c9a3-4709-892b-d3b76048b4d4; SESSION-GUID=2fml51jzt0w, looking for Persona
+[Thu Sep 12 14:34:26 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:34:27 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 21580 for worker proxy:reverse
+[Thu Sep 12 14:34:27 2013] [debug] proxy_util.c(1839): proxy: worker proxy:reverse already initialized
+[Thu Sep 12 14:34:27 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 21580 for (*)
+[Thu Sep 12 14:34:27 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:34:27 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:34:27 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie __utma=111872281.678879817.1373212254.1373212254.1373212254.1; __utmz=111872281.1362772697.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __jwpusr=d82b2d80-c9a3-4709-892b-d3b76048b4d4; SESSION-GUID=2fml51jzt0w, looking for Persona
+[Thu Sep 12 14:34:27 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:34:59 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie, referer: http://localhost:8529/
+[Thu Sep 12 14:34:59 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona', referer: http://localhost:8529/
+[Thu Sep 12 14:34:59 2013] [debug] verify.c(88): [client 127.0.0.1] authn_persona: Requesting verification with audience localhost.localdomain, referer: http://localhost:8529/
+[Thu Sep 12 14:35:00 2013] [debug] mod_authn_persona.c(116): [client 127.0.0.1] authn_persona: Assertion received 'eyJhbGciOiJEUzEyOCJ9.eyJwdWJsaWMta2V5Ijp7ImFsZ29yaXRobSI6IkRTIiwieSI6IjY5MWFhYzFjNWMxOWVkMzg0ZmJkMzRlZjQzZGU5MzAwYmJlMGIzNzRlZjE5MjZiMGRjYWY4NTAxZDc3NDI5ZTBiZjBhOWY2OWRjMWNkNzViMTdmZGQ0MDYwYmM0OWU4ZGFlYzM2NWM3MjdmODRiNmQ2YTFiYjlkZTJmZTc2YjIyY2YwM2U5OGQxY2E5ZjY4MzM4NTFlMTk3YWMzODg0MTkzYWExZjUzN2I5OGNlZDAzZTY0NjdiZGFhNzM4NmM1Y2UwNjZiNGE4NThjMjc0NWE2Zjg2NTUzZjMzOTczMzNiM2RjZDNhOTZhNzI1OTE0M2ZmYjNiYzhjMGMyNDE2MjkiLCJwIjoiZmY2MDA0ODNkYjZhYmZjNWI0NWVhYjc4NTk0YjM1MzNkNTUwZDlmMWJmMmE5OTJhN2E4ZGFhNmRjMzRmODA0NWFkNGU2ZTBjNDI5ZDMzNGVlZWFhZWZkN2UyM2Q0ODEwYmUwMGU0Y2MxNDkyY2JhMzI1YmE4MWZmMmQ1YTViMzA1YThkMTdlYjNiZjRhMDZhMzQ5ZDM5MmUwMGQzMjk3NDRhNTE3OTM4MDM0NGU4MmExOGM0NzkzMzQzOGY4OTFlMjJhZWVmODEyZDY5YzhmNzVlMzI2Y2I3MGVhMDAwYzNmNzc2ZGZkYmQ2MDQ2MzhjMmVmNzE3ZmMyNmQwMmUxNyIsInEiOiJlMjFlMDRmOTExZDFlZDc5OTEwMDhlY2FhYjNiZjc3NTk4NDMwOWMzIiwiZyI6ImM1MmE0YTBmZjNiN2U2MWZkZjE4NjdjZTg0MTM4MzY5YTYxNTRmNGFmYTkyOTY2ZTNjODI3ZTI1Y2ZhNmNmNTA4YjkwZTVkZTQxOWUxMzM3ZTA3YTJlOWUyYTNjZDVkZWE3MDRkMTc1ZjhlYmY2YWYzOTdkNjllMTEwYjk2YWZiMTdjN2EwMzI1OTMyOWU0ODI5YjBkMDNiYmM3ODk2YjE1YjRhZGU1M2UxMzA4NThjYzM0ZDk2MjY5YWE4OTA0MWY0MDkxMzZjNzI0MmEzODg5NWM5ZDViY2NhZDRmMzg5YWYxZDdhNGJkMTM5OGJkMDcyZGZmYTg5NjIzMzM5N2EifSwicHJpbmNpcGFsIjp7ImVtYWlsIjoidGVzdEBzd2lzcy11MnhrMjd1NS50ZXN0aWRwLm9yZyJ9LCJpYXQiOjEzNzkwMTA4OTU3MzUsImV4cCI6MTM3OTU2NDQ0MDczNSwiaXNzIjoic3dpc3MtdTJ4azI3dTUudGVzdGlkcC5vcmcifQ.I9t79bHxMQDIqFHNmIy0R7BrIt6cNS8J3M3xm92W2bonHGwVWmi4Vg~eyJhbGciOiJEUzEyOCJ9.eyJleHAiOjEzNzkwMTEwMTY5MzAsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODUyOSJ9.dGVCGbYgdQcAT2p6XH9FoZiDjhhH6Cgw_JgkPCfcEUJTVBH_bvHf0A', referer: http://localhost:8529/
+[Thu Sep 12 14:35:56 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:35:56 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:35:56 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie __utma=111872281.678879817.1373212254.1373212254.1373212254.1; __utmz=111872281.1362772697.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __jwpusr=d82b2d80-c9a3-4709-892b-d3b76048b4d4; SESSION-GUID=2fml51jzt0w, looking for Persona
+[Thu Sep 12 14:35:56 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:35:57 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie, referer: http://localhost:8529/
+[Thu Sep 12 14:35:57 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona', referer: http://localhost:8529/
+[Thu Sep 12 14:35:57 2013] [debug] verify.c(88): [client 127.0.0.1] authn_persona: Requesting verification with audience localhost.localdomain, referer: http://localhost:8529/
+[Thu Sep 12 14:35:58 2013] [debug] mod_authn_persona.c(116): [client 127.0.0.1] authn_persona: Assertion received 'eyJhbGciOiJEUzEyOCJ9.eyJwdWJsaWMta2V5Ijp7ImFsZ29yaXRobSI6IkRTIiwieSI6IjY5MWFhYzFjNWMxOWVkMzg0ZmJkMzRlZjQzZGU5MzAwYmJlMGIzNzRlZjE5MjZiMGRjYWY4NTAxZDc3NDI5ZTBiZjBhOWY2OWRjMWNkNzViMTdmZGQ0MDYwYmM0OWU4ZGFlYzM2NWM3MjdmODRiNmQ2YTFiYjlkZTJmZTc2YjIyY2YwM2U5OGQxY2E5ZjY4MzM4NTFlMTk3YWMzODg0MTkzYWExZjUzN2I5OGNlZDAzZTY0NjdiZGFhNzM4NmM1Y2UwNjZiNGE4NThjMjc0NWE2Zjg2NTUzZjMzOTczMzNiM2RjZDNhOTZhNzI1OTE0M2ZmYjNiYzhjMGMyNDE2MjkiLCJwIjoiZmY2MDA0ODNkYjZhYmZjNWI0NWVhYjc4NTk0YjM1MzNkNTUwZDlmMWJmMmE5OTJhN2E4ZGFhNmRjMzRmODA0NWFkNGU2ZTBjNDI5ZDMzNGVlZWFhZWZkN2UyM2Q0ODEwYmUwMGU0Y2MxNDkyY2JhMzI1YmE4MWZmMmQ1YTViMzA1YThkMTdlYjNiZjRhMDZhMzQ5ZDM5MmUwMGQzMjk3NDRhNTE3OTM4MDM0NGU4MmExOGM0NzkzMzQzOGY4OTFlMjJhZWVmODEyZDY5YzhmNzVlMzI2Y2I3MGVhMDAwYzNmNzc2ZGZkYmQ2MDQ2MzhjMmVmNzE3ZmMyNmQwMmUxNyIsInEiOiJlMjFlMDRmOTExZDFlZDc5OTEwMDhlY2FhYjNiZjc3NTk4NDMwOWMzIiwiZyI6ImM1MmE0YTBmZjNiN2U2MWZkZjE4NjdjZTg0MTM4MzY5YTYxNTRmNGFmYTkyOTY2ZTNjODI3ZTI1Y2ZhNmNmNTA4YjkwZTVkZTQxOWUxMzM3ZTA3YTJlOWUyYTNjZDVkZWE3MDRkMTc1ZjhlYmY2YWYzOTdkNjllMTEwYjk2YWZiMTdjN2EwMzI1OTMyOWU0ODI5YjBkMDNiYmM3ODk2YjE1YjRhZGU1M2UxMzA4NThjYzM0ZDk2MjY5YWE4OTA0MWY0MDkxMzZjNzI0MmEzODg5NWM5ZDViY2NhZDRmMzg5YWYxZDdhNGJkMTM5OGJkMDcyZGZmYTg5NjIzMzM5N2EifSwicHJpbmNpcGFsIjp7ImVtYWlsIjoidGVzdEBzd2lzcy11MnhrMjd1NS50ZXN0aWRwLm9yZyJ9LCJpYXQiOjEzNzkwMTA4OTU3MzUsImV4cCI6MTM3OTU2NDQ0MDczNSwiaXNzIjoic3dpc3MtdTJ4azI3dTUudGVzdGlkcC5vcmcifQ.I9t79bHxMQDIqFHNmIy0R7BrIt6cNS8J3M3xm92W2bonHGwVWmi4Vg~eyJhbGciOiJEUzEyOCJ9.eyJleHAiOjEzNzkwMTEwNzc1MDUsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODUyOSJ9.BULLm3qyVePo79sb0wSUM7jFbveUmNjUUdFbslzrtOLFH1iX40joIA', referer: http://localhost:8529/
+[Thu Sep 12 14:36:02 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:36:02 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:36:02 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:36:02 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:36:02 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:36:02 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:36:02 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:36:02 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:36:02 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:36:19 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie, referer: http://localhost.localdomain:8529/
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona', referer: http://localhost.localdomain:8529/
+[Thu Sep 12 14:36:19 2013] [debug] verify.c(88): [client 127.0.0.1] authn_persona: Requesting verification with audience localhost.localdomain, referer: http://localhost.localdomain:8529/
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(116): [client 127.0.0.1] authn_persona: Assertion received 'eyJhbGciOiJEUzEyOCJ9.eyJwdWJsaWMta2V5Ijp7ImFsZ29yaXRobSI6IkRTIiwieSI6IjY5MWFhYzFjNWMxOWVkMzg0ZmJkMzRlZjQzZGU5MzAwYmJlMGIzNzRlZjE5MjZiMGRjYWY4NTAxZDc3NDI5ZTBiZjBhOWY2OWRjMWNkNzViMTdmZGQ0MDYwYmM0OWU4ZGFlYzM2NWM3MjdmODRiNmQ2YTFiYjlkZTJmZTc2YjIyY2YwM2U5OGQxY2E5ZjY4MzM4NTFlMTk3YWMzODg0MTkzYWExZjUzN2I5OGNlZDAzZTY0NjdiZGFhNzM4NmM1Y2UwNjZiNGE4NThjMjc0NWE2Zjg2NTUzZjMzOTczMzNiM2RjZDNhOTZhNzI1OTE0M2ZmYjNiYzhjMGMyNDE2MjkiLCJwIjoiZmY2MDA0ODNkYjZhYmZjNWI0NWVhYjc4NTk0YjM1MzNkNTUwZDlmMWJmMmE5OTJhN2E4ZGFhNmRjMzRmODA0NWFkNGU2ZTBjNDI5ZDMzNGVlZWFhZWZkN2UyM2Q0ODEwYmUwMGU0Y2MxNDkyY2JhMzI1YmE4MWZmMmQ1YTViMzA1YThkMTdlYjNiZjRhMDZhMzQ5ZDM5MmUwMGQzMjk3NDRhNTE3OTM4MDM0NGU4MmExOGM0NzkzMzQzOGY4OTFlMjJhZWVmODEyZDY5YzhmNzVlMzI2Y2I3MGVhMDAwYzNmNzc2ZGZkYmQ2MDQ2MzhjMmVmNzE3ZmMyNmQwMmUxNyIsInEiOiJlMjFlMDRmOTExZDFlZDc5OTEwMDhlY2FhYjNiZjc3NTk4NDMwOWMzIiwiZyI6ImM1MmE0YTBmZjNiN2U2MWZkZjE4NjdjZTg0MTM4MzY5YTYxNTRmNGFmYTkyOTY2ZTNjODI3ZTI1Y2ZhNmNmNTA4YjkwZTVkZTQxOWUxMzM3ZTA3YTJlOWUyYTNjZDVkZWE3MDRkMTc1ZjhlYmY2YWYzOTdkNjllMTEwYjk2YWZiMTdjN2EwMzI1OTMyOWU0ODI5YjBkMDNiYmM3ODk2YjE1YjRhZGU1M2UxMzA4NThjYzM0ZDk2MjY5YWE4OTA0MWY0MDkxMzZjNzI0MmEzODg5NWM5ZDViY2NhZDRmMzg5YWYxZDdhNGJkMTM5OGJkMDcyZGZmYTg5NjIzMzM5N2EifSwicHJpbmNpcGFsIjp7ImVtYWlsIjoidGVzdEBzd2lzcy11MnhrMjd1NS50ZXN0aWRwLm9yZyJ9LCJpYXQiOjEzNzkwMTA4OTU3MzUsImV4cCI6MTM3OTU2NDQ0MDczNSwiaXNzIjoic3dpc3MtdTJ4azI3dTUudGVzdGlkcC5vcmcifQ.I9t79bHxMQDIqFHNmIy0R7BrIt6cNS8J3M3xm92W2bonHGwVWmi4Vg~eyJhbGciOiJEUzEyOCJ9.eyJleHAiOjEzNzkwMTEwOTY2MzIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3QubG9jYWxkb21haW46ODUyOSJ9.Im2Tbl0qMF_3btlHAS7mkJ707RuyWJ1A_e56IL9AwNZMrNK0CuFMXg', referer: http://localhost.localdomain:8529/
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(120): [client 127.0.0.1] authn_persona: email 'test@swiss-u2xk27u5.testidp.org' verified, vouched for by issuer 'swiss-u2xk27u5.testidp.org', referer: http://localhost.localdomain:8529/
+[Thu Sep 12 14:36:19 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:36:19 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie Persona=test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=, looking for Persona
+[Thu Sep 12 14:36:19 2013] [debug] cookie.c(95): [client 127.0.0.1] authn_persona: finished cookie scan, returning test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:19 2013] [debug] cookie.c(121): [client 127.0.0.1] authn_persona: Got cookie: email is test@swiss-u2xk27u5.testidp.org; expected digest is AND7lBWrgEJyLMtOZYEgJmt/Ep0=; got digest AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:19 2013] [info] [client 127.0.0.1] authn_persona: Valid auth cookie found, passthrough
+[Thu Sep 12 14:36:19 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_auth
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(197): [client 127.0.0.1] authn_persona: Require Line is 'valid-user'
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(201): [client 127.0.0.1] authn_persona: Require Cmd is 'valid-user'
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(205): [client 127.0.0.1] authn_persona: Require Cmd valid-user
+[Thu Sep 12 14:36:19 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:36:19 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie Persona=test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=, looking for Persona
+[Thu Sep 12 14:36:19 2013] [debug] cookie.c(95): [client 127.0.0.1] authn_persona: finished cookie scan, returning test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:19 2013] [debug] cookie.c(121): [client 127.0.0.1] authn_persona: Got cookie: email is test@swiss-u2xk27u5.testidp.org; expected digest is AND7lBWrgEJyLMtOZYEgJmt/Ep0=; got digest AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:19 2013] [info] [client 127.0.0.1] authn_persona: Valid auth cookie found, passthrough
+[Thu Sep 12 14:36:19 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_auth
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(197): [client 127.0.0.1] authn_persona: Require Line is 'valid-user'
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(201): [client 127.0.0.1] authn_persona: Require Cmd is 'valid-user'
+[Thu Sep 12 14:36:19 2013] [debug] mod_authn_persona.c(205): [client 127.0.0.1] authn_persona: Require Cmd valid-user
+[Thu Sep 12 14:36:24 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:36:24 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie Persona=test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=, looking for Persona
+[Thu Sep 12 14:36:24 2013] [debug] cookie.c(95): [client 127.0.0.1] authn_persona: finished cookie scan, returning test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:24 2013] [debug] cookie.c(121): [client 127.0.0.1] authn_persona: Got cookie: email is test@swiss-u2xk27u5.testidp.org; expected digest is AND7lBWrgEJyLMtOZYEgJmt/Ep0=; got digest AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:24 2013] [info] [client 127.0.0.1] authn_persona: Valid auth cookie found, passthrough
+[Thu Sep 12 14:36:24 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_auth
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(197): [client 127.0.0.1] authn_persona: Require Line is 'valid-user'
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(201): [client 127.0.0.1] authn_persona: Require Cmd is 'valid-user'
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(205): [client 127.0.0.1] authn_persona: Require Cmd valid-user
+[Thu Sep 12 14:36:24 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:36:24 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie Persona=test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=, looking for Persona
+[Thu Sep 12 14:36:24 2013] [debug] cookie.c(95): [client 127.0.0.1] authn_persona: finished cookie scan, returning test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:24 2013] [debug] cookie.c(121): [client 127.0.0.1] authn_persona: Got cookie: email is test@swiss-u2xk27u5.testidp.org; expected digest is AND7lBWrgEJyLMtOZYEgJmt/Ep0=; got digest AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:36:24 2013] [info] [client 127.0.0.1] authn_persona: Valid auth cookie found, passthrough
+[Thu Sep 12 14:36:24 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_auth
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(197): [client 127.0.0.1] authn_persona: Require Line is 'valid-user'
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(201): [client 127.0.0.1] authn_persona: Require Cmd is 'valid-user'
+[Thu Sep 12 14:36:24 2013] [debug] mod_authn_persona.c(205): [client 127.0.0.1] authn_persona: Require Cmd valid-user
+[Thu Sep 12 14:38:18 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=21567)
+[Thu Sep 12 14:38:18 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 14:38:19 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:38:20 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 14:38:20 2013] [notice] Digest: done
+[Thu Sep 12 14:38:20 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:38:21 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 14:38:21 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 14:38:21 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 14:38:21 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 21721 for worker proxy:reverse
+[Thu Sep 12 14:38:21 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 21721 for (*)
+[Thu Sep 12 14:38:21 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:38:21 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:38:21 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:38:21 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=21720)
+[Thu Sep 12 14:38:21 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 14:38:35 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:38:36 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 14:38:36 2013] [notice] Digest: done
+[Thu Sep 12 14:38:36 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:38:37 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 14:38:37 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 14:38:37 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 14:38:37 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 21761 for worker proxy:reverse
+[Thu Sep 12 14:38:37 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 21761 for (*)
+[Thu Sep 12 14:38:37 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:38:37 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:38:37 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:38:37 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=21760)
+[Thu Sep 12 14:38:37 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 14:41:26 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:41:27 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 14:41:27 2013] [notice] Digest: done
+[Thu Sep 12 14:41:27 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:41:28 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 14:41:28 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 14:41:28 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 14:41:28 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 22185 for worker proxy:reverse
+[Thu Sep 12 14:41:28 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 22185 for (*)
+[Thu Sep 12 14:41:28 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:41:28 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:41:28 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:41:28 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=22184)
+[Thu Sep 12 14:41:28 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 14:43:45 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:43:46 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 14:43:46 2013] [notice] Digest: done
+[Thu Sep 12 14:43:46 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:43:47 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 14:43:47 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 14:43:47 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 14:43:47 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 22267 for worker proxy:reverse
+[Thu Sep 12 14:43:47 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 22267 for (*)
+[Thu Sep 12 14:43:47 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:43:47 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:43:47 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:43:47 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=22266)
+[Thu Sep 12 14:43:47 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 14:56:10 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:56:11 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 14:56:11 2013] [notice] Digest: done
+[Thu Sep 12 14:56:11 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 14:56:12 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 14:56:12 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 14:56:12 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 14:56:12 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 23133 for worker proxy:reverse
+[Thu Sep 12 14:56:12 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 23133 for (*)
+[Thu Sep 12 14:56:12 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:56:12 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:56:12 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:56:16 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:56:16 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:56:16 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:56:26 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:56:26 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:56:26 2013] [debug] cookie.c(75): [client 127.0.0.1] authn_persona: Checking cookie Persona=test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=, looking for Persona
+[Thu Sep 12 14:56:26 2013] [debug] cookie.c(95): [client 127.0.0.1] authn_persona: finished cookie scan, returning test@swiss-u2xk27u5.testidp.org|swiss-u2xk27u5.testidp.org|AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:56:26 2013] [debug] cookie.c(121): [client 127.0.0.1] authn_persona: Got cookie: email is test@swiss-u2xk27u5.testidp.org; expected digest is /WzLam63ejCr+fNfInSL9tyimJo=; got digest AND7lBWrgEJyLMtOZYEgJmt/Ep0=
+[Thu Sep 12 14:56:26 2013] [error] [client 127.0.0.1] authn_persona: invalid Persona cookie
+[Thu Sep 12 14:56:26 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:56:27 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 23146 for worker proxy:reverse
+[Thu Sep 12 14:56:27 2013] [debug] proxy_util.c(1839): proxy: worker proxy:reverse already initialized
+[Thu Sep 12 14:56:27 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 23146 for (*)
+[Thu Sep 12 14:58:07 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:58:07 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:58:07 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:58:47 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:58:47 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:58:47 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:59:24 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:59:24 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:59:24 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 14:59:34 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 14:59:34 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 14:59:34 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:00:42 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=23132)
+[Thu Sep 12 15:00:42 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 15:00:45 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:00:46 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 15:00:46 2013] [notice] Digest: done
+[Thu Sep 12 15:00:46 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:00:47 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 15:00:47 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 15:00:47 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 15:00:47 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 23421 for worker proxy:reverse
+[Thu Sep 12 15:00:47 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 23421 for (*)
+[Thu Sep 12 15:00:47 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:00:47 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:00:47 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:00:47 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:00:47 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:00:47 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:00:47 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=23420)
+[Thu Sep 12 15:00:47 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 15:01:08 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:01:09 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 15:01:09 2013] [notice] Digest: done
+[Thu Sep 12 15:01:09 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:01:10 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 15:01:10 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 15:01:10 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 15:01:10 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 23501 for worker proxy:reverse
+[Thu Sep 12 15:01:10 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 23501 for (*)
+[Thu Sep 12 15:01:10 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:01:10 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:01:10 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:01:10 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:01:10 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:01:10 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:01:10 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=23500)
+[Thu Sep 12 15:01:10 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 15:07:05 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:07:06 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 15:07:06 2013] [notice] Digest: done
+[Thu Sep 12 15:07:06 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:07:07 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 15:07:07 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 15:07:07 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 15:07:07 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 24123 for worker proxy:reverse
+[Thu Sep 12 15:07:07 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 24123 for (*)
+[Thu Sep 12 15:07:07 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:07:07 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:07:07 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:07:07 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:07:07 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:07:07 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:07:07 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=24119)
+[Thu Sep 12 15:07:07 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 15:07:45 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:07:46 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 15:07:46 2013] [notice] Digest: done
+[Thu Sep 12 15:07:46 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:07:47 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 15:07:47 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 15:07:47 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 15:07:47 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 24182 for worker proxy:reverse
+[Thu Sep 12 15:07:47 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 24182 for (*)
+[Thu Sep 12 15:07:47 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:07:47 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:07:47 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:07:47 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:07:47 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:07:47 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:07:47 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=24181)
+[Thu Sep 12 15:07:47 2013] [notice] caught SIGTERM, shutting down
+[Thu Sep 12 15:08:15 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:08:16 2013] [notice] Digest: generating secret for digest authentication ...
+[Thu Sep 12 15:08:16 2013] [notice] Digest: done
+[Thu Sep 12 15:08:16 2013] [info] mod_unique_id: using ip addr 127.0.0.1
+[Thu Sep 12 15:08:17 2013] [notice] Apache/2.2.25-dev (Unix) DAV/2 configured -- resuming normal operations
+[Thu Sep 12 15:08:17 2013] [info] Server built: Mar 27 2013 18:11:41
+[Thu Sep 12 15:08:17 2013] [debug] prefork.c(1023): AcceptMutex: sysvsem (default: sysvsem)
+[Thu Sep 12 15:08:17 2013] [debug] proxy_util.c(1820): proxy: grabbed scoreboard slot 0 in child 24255 for worker proxy:reverse
+[Thu Sep 12 15:08:17 2013] [debug] proxy_util.c(1936): proxy: initialized single connection worker 0 in child 24255 for (*)
+[Thu Sep 12 15:08:17 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:08:17 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:08:17 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:08:17 2013] [error] [client 127.0.0.1] authn_persona: Auth_persona_check_cookie
+[Thu Sep 12 15:08:17 2013] [debug] mod_authn_persona.c(100): [client 127.0.0.1] authn_persona: AuthType 'Persona'
+[Thu Sep 12 15:08:17 2013] [info] [client 127.0.0.1] authn_persona: Persona cookie not found; not authorized! RemoteIP:(null)
+[Thu Sep 12 15:08:17 2013] [info] removed PID file /home/gozer/opt/src/mozilla.org/gozer/mod_authn_persona/t/logs/httpd.pid (pid=24254)
+[Thu Sep 12 15:08:17 2013] [notice] caught SIGTERM, shutting down
