@@ -13,6 +13,8 @@
 #include <ctype.h>
 #include <unistd.h>
 
+char* make_ident ( char* );
+
 /* Replace . with _ */
 char*
 make_ident ( char* name )
