@@ -19,6 +19,7 @@ libtool
 src/.deps/
 src/.dirstamp
 src/signin_page.h
+src/version.h
 stamp-h1
 tools/.deps/
 tools/.dirstamp

@@ -50,6 +50,8 @@
 #include <curl/easy.h>
 #include <assert.h>
 
+#include "version.h"
+
 /* apache module name */
 module AP_MODULE_DECLARE_DATA authn_persona_module;
 
@@ -309,6 +311,13 @@ static int processLogout(request_rec *r)
   return HTTP_TEMPORARY_REDIRECT;
 }
 
+static int Auth_persona_post_config(apr_pool_t *pconf, apr_pool_t *plog,
+                                    apr_pool_t *ptemp, server_rec *s)
+{
+    ap_add_version_component(pconf, "mod_authn_persona/" VERSION);
+    return OK;
+}
+
 /**************************************************
  * register module hooks
  **************************************************/
@@ -317,6 +326,7 @@ static void register_hooks(apr_pool_t *p)
   // these hooks are are executed in order, first is first.
   ap_hook_check_user_id(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST);
   ap_hook_auth_checker(Auth_persona_check_auth, NULL, NULL, APR_HOOK_FIRST);
+  ap_hook_post_config(Auth_persona_post_config, NULL, NULL, APR_HOOK_MIDDLE);
 }
 
 #define RAND_BYTES_AT_A_TIME 256

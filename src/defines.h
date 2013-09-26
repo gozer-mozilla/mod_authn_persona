@@ -11,7 +11,6 @@
 #define PERSONA_END_PAGE "\n</script>\n</html>\n"
 
 #define ERRTAG "authn_persona: "
-#define VERSION "1.0.0"
 
 typedef struct buffer {
   size_t len;

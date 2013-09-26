@@ -16,10 +16,10 @@ HTTPD_CFLAGS = $(shell $(APXS) -q CFLAGS) -I $(shell $(APXS) -q INCLUDEDIR)
 
 AM_CFLAGS = -Isrc $(HTTPD_CFLAGS) $(APR_CFLAGS) $(APU_CFLAGS) $(YAJL_CFLAGS) $(LIBCURL_CPPFLAGS)
 
-mod_authn_persona_la_SOURCES = src/mod_authn_persona.c src/cookie.c src/verify.c src/hmac.c src/cookie.h src/defines.h src/verify.h src/hmac.h
-noinst_mod_authn_persona_la_SOURCES = src/signin_page.h
-BUILT_SOURCES = src/signin_page.h
+mod_authn_persona_la_SOURCES = src/mod_authn_persona.c src/cookie.c src/verify.c src/hmac.c src/cookie.h src/defines.h src/verify.h src/hmac.h src/signin_page.h src/version.h
+BUILT_SOURCES = src/signin_page.h src/version.h
 mod_authn_persona_la_LDFLAGS = -module -avoid-version $(YAJL_LIBS) $(LIBCURL)
+
 
 bin2c_SOURCES = tools/bin2c.c
 
