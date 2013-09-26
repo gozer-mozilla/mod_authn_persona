@@ -1,4 +1,3 @@
--i4 -npsl -di0 -br -nce -d0 -cli0 -npcs -nfc1
 -TBUFF
 -TFILE
 -TTRANS
