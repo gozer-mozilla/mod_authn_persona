@@ -310,10 +310,10 @@ static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
   persona_config_t *conf = apr_palloc(p, sizeof(*conf));
   
   conf->secret = apr_pcalloc(p, sizeof(buffer_t));
-  conf->assertion_header = apr_pstrdup(p, PERSONA_ASSERTION_HEADER);
-  conf->cookie_name = apr_pstrdup(p, PERSONA_COOKIE_NAME);
-  conf->issuer_note = apr_pstrdup(p, PERSONA_ISSUER_NOTE);
-  conf->verifier_url = apr_pstrdup(p, PERSONA_DEFAULT_VERIFIER_URL);
+  conf->assertion_header = PERSONA_ASSERTION_HEADER;
+  conf->cookie_name = PERSONA_COOKIE_NAME);
+  conf->issuer_note = PERSONA_ISSUER_NOTE);
+  conf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
   conf->secret_size = PERSONA_SECRET_SIZE;
   
   return conf;
