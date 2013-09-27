@@ -58,8 +58,8 @@ module AP_MODULE_DECLARE_DATA authn_persona_module;
 apr_table_t *parseArgs(request_rec *, char *);
 const char* persona_server_secret_option(cmd_parms *, void *, const char *);
 const char* persona_server_cookie_name(cmd_parms *, void *, const char *);
+const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 static void persona_generate_secret(apr_pool_t *, server_rec *, persona_config_t *);
-
 /**************************************************
  * Authentication phase
  *
@@ -86,7 +86,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   persona_config_t *conf = ap_get_module_config(r->server->module_config, &authn_persona_module);
   assertion = apr_table_get(r->headers_in, conf->assertion_header);
   if (assertion) {
-    VerifyResult res = processAssertion(r, assertion);
+    VerifyResult res = processAssertion(r, conf->verifier_url, assertion);
 
     ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG
                   "Assertion received '%s'", assertion);
@@ -313,7 +313,7 @@ static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
   conf->assertion_header = apr_pstrdup(p, PERSONA_ASSERTION_HEADER);
   conf->cookie_name = apr_pstrdup(p, PERSONA_COOKIE_NAME);
   conf->issuer_note = apr_pstrdup(p, PERSONA_ISSUER_NOTE);
-  conf->verifier_url= apr_pstrdup(p, PERSONA_DEFAULT_VERIFIER_URL);
+  conf->verifier_url = apr_pstrdup(p, PERSONA_DEFAULT_VERIFIER_URL);
   conf->secret_size = PERSONA_SECRET_SIZE;
   
   return conf;
@@ -335,6 +335,13 @@ const char *persona_server_cookie_name(cmd_parms *cmd, void *cfg, const char *ar
   return NULL;
 }
 
+const char *persona_server_verifier_url(cmd_parms *cmd, void *cfg, const char *arg) {
+  server_rec *s = cmd->server;
+  persona_config_t *conf = ap_get_module_config(s->module_config, &authn_persona_module);
+  conf->verifier_url = apr_pstrdup(cmd->pool, arg);
+  return NULL;
+}
+
 static const command_rec Auth_persona_options[] =
 {
   AP_INIT_TAKE1(
@@ -344,6 +351,10 @@ static const command_rec Auth_persona_options[] =
   AP_INIT_TAKE1(
     "AuthPersonaCookieName", persona_server_cookie_name,
     NULL, RSRC_CONF, "Name of the Persona Cookie"
+  ),
+  AP_INIT_TAKE1(
+    "AuthPersonaVerifierURL", persona_server_verifier_url,
+    NULL, RSRC_CONF, "URL to a Persona Verfier service"
   ),
   {NULL}
 };

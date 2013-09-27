@@ -63,6 +63,6 @@ typedef struct _VerifyResult {
  *    - Upon success has non-NULL verifiedEmail and identityIssuer fields.
  *    - Upon failure, has non-NULL errorResponse.
  */
-VerifyResult processAssertion(request_rec *r, const char *assertion);
+VerifyResult processAssertion(request_rec *r, const char *verifier_url, const char *assertion);
 
 #endif

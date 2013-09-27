@@ -78,15 +78,15 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
 /* Pass the assertion to the verification service defined in the config,
  * and return the result to the caller */
-static char *verifyAssertionRemote(request_rec *r, char *assertionText)
+static char *verifyAssertionRemote(request_rec *r, const char *verifier_url, char *assertionText)
 {
   CURL *curl = curl_easy_init();
 
-  curl_easy_setopt(curl, CURLOPT_URL, PERSONA_DEFAULT_VERIFIER_URL);
+  curl_easy_setopt(curl, CURLOPT_URL, verifier_url);
   curl_easy_setopt(curl, CURLOPT_POST, 1);
 
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r,
-                ERRTAG  "Requesting verification with audience %s", r->server->server_hostname);
+                ERRTAG  "Requesting verification with audience %s via %s", r->server->server_hostname, verifier_url);
 
   // XXX: audience should be an origin, see docs or issue mozilla/browserid#82
   char *body = apr_psprintf(r->pool, "assertion=%s&audience=%s",
@@ -128,12 +128,12 @@ static char *verifyAssertionRemote(request_rec *r, char *assertionText)
  *
  * TODO: local verification
  */
-VerifyResult processAssertion(request_rec *r, const char *assertion)
+VerifyResult processAssertion(request_rec *r, const char *verifier_url, const char *assertion)
 {
   VerifyResult res = apr_pcalloc(r->pool, sizeof(struct _VerifyResult));
   yajl_val parsed_result = NULL;
 
-  char *assertionResult = verifyAssertionRemote(r, (char*) assertion);
+  char *assertionResult = verifyAssertionRemote(r, verifier_url, (char*)assertion);
 
   if (assertionResult) {
     char errorBuffer[256];

@@ -1,6 +1,8 @@
 LoadModule authn_persona_module @ServerRoot@/../.libs/mod_authn_persona.so
 
-AuthPersonaCookieName Test-Persona
+AuthPersonaCookieName   Test-Persona
+AuthPersonaServerSecret Test123
+AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
 
 <Location />
    # this site requires Persona authentication
