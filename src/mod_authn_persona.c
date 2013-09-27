@@ -58,37 +58,6 @@ module AP_MODULE_DECLARE_DATA authn_persona_module;
 apr_table_t *parseArgs(request_rec *, char *);
 const char* persona_server_secret_option(cmd_parms *, void *, const char *);
 
-/** Given a filename and username, open the file (using normal Apache
- * configuration directory search rules) and search for the given username
- * in it (as a newline-seaparated list) */
-static int user_in_file(request_rec *r, char *username, char *filename)
-{
-  apr_status_t status;
-  char l[MAX_STRING_LEN];
-  ap_configfile_t *f;
-  status = ap_pcfg_openfile(&f, r->pool, filename);
-  if (status != APR_SUCCESS) {
-    ap_log_rerror(APLOG_MARK, APLOG_ERR, status, r,
-                  "Could not open user file: %s", filename);
-    return 0;
-  }
-
-  int found = 0;
-  while (!(ap_cfg_getline(l, MAX_STRING_LEN, f))) {
-    /* Skip # or blank lines. */
-    if ((l[0] == '#') || (!l[0])) {
-      continue;
-    }
-
-    if (!strcmp(username, l)) {
-      found = 1;
-      break;
-    }
-  }
-  ap_cfg_closefile(f);
-  return found;
-}
-
 /**************************************************
  * Authentication phase
  *
@@ -173,17 +142,13 @@ static int Auth_persona_check_cookie(request_rec *r)
  **************************************************/
 static int Auth_persona_check_auth(request_rec *r)
 {
-  char *szUser;
   const apr_array_header_t *reqs_arr=NULL;
   require_line *reqs=NULL;
   register int x;
   const char *szRequireLine;
-  char *szFileName;
   char *szRequire_cmd;
   
   persona_config_t *conf = ap_get_module_config(r->server->module_config, &authn_persona_module);
-
-  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth_persona_check_auth");
 
   /* get require line */
   reqs_arr = ap_requires(r);
@@ -200,40 +165,12 @@ static int Auth_persona_check_auth(request_rec *r)
 
     /* get require line */
     szRequireLine = reqs[x].requirement;
-    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "Require Line is '%s'", szRequireLine);
 
     /* get the first word in require line */
     szRequire_cmd = ap_getword_white(r->pool, &szRequireLine);
-    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd is '%s'", szRequire_cmd);
-
-    /* if require cmd are valid-user, they are already authenticated than allow and return OK */
-    if (!strcmp("valid-user",szRequire_cmd)) {
-      ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd valid-user");
-      return OK;
-    }
-    /* check the required user */
-    else if (!strcmp("user",szRequire_cmd)) {
-      szUser = ap_getword_conf(r->pool, &szRequireLine);
-      if (strcmp(r->user, szUser)) {
-        ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user '%s' is not the required user '%s'",r->user, szUser);
-        return HTTP_FORBIDDEN;
-      }
-      ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "user '%s' is authorized",r->user);
-      return OK;
-    }
-    /* check for users in a file */ 
-    else if (!strcmp("userfile",szRequire_cmd)) {
-      szFileName = ap_getword_conf(r->pool, &szRequireLine);
-      if (!user_in_file(r, r->user, szFileName)) {
-        ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user '%s' is not in username list at '%s'",r->user,szFileName);
-        return HTTP_FORBIDDEN;
-      } else {
-        return OK;
-      }
-    }
 
     // persona-idp: check host part of user name
-    else if (!strcmp("persona-idp", szRequire_cmd)) {
+    if (!strcmp("persona-idp", szRequire_cmd)) {
       char *reqIdp = ap_getword_conf(r->pool, &szRequireLine);
       const char *issuer = apr_table_get(r->notes, conf->issuer_note);
       if (!issuer || strcmp(issuer, reqIdp)) {
@@ -247,8 +184,11 @@ static int Auth_persona_check_auth(request_rec *r)
         ap_rwrite(src_signin_html, sizeof(src_signin_html), r);
         ap_rwrite(script, strlen(script), r);
         ap_rwrite(PERSONA_END_PAGE, sizeof(PERSONA_END_PAGE), r);
-        return DONE;
+	ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r,
+                    ERRTAG "user '%s' is not authorized by idp:%s, but idp:%s instead", r->user, reqIdp, (issuer ? issuer : "unknown"));
+        return HTTP_FORBIDDEN;
       }
+      
       ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r,
                     ERRTAG "user '%s' is authorized", r->user);
       return OK;
@@ -256,8 +196,9 @@ static int Auth_persona_check_auth(request_rec *r)
 
   }
   ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r ,ERRTAG  "user '%s' is not authorized",r->user);
-  /* forbid by default */
-  return HTTP_FORBIDDEN;
+
+  /* give others a chance */
+  return DECLINED;
 }
 
 /* Parse x-www-url-formencoded args */
@@ -349,12 +290,14 @@ static void persona_generate_secret(apr_pool_t *p, persona_config_t *conf) {
   conf->secret = apr_palloc(p, sizeof(buffer_t));
   conf->secret->len = conf->secret_size;
   conf->secret->data = secret;
+  
 }
 
 static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
 {
   persona_config_t *conf = apr_palloc(p, sizeof(*conf));
   
+  /* XXX: This is slow and delays startup, should happen after startup */
   persona_generate_secret(p, conf);
   
   conf->assertion_header = apr_pstrdup(p, PERSONA_ASSERTION_HEADER);
