@@ -57,6 +57,7 @@ module AP_MODULE_DECLARE_DATA authn_persona_module;
 
 apr_table_t *parseArgs(request_rec *, char *);
 const char* persona_server_secret_option(cmd_parms *, void *, const char *);
+static void persona_generate_secret(apr_pool_t *, server_rec *, persona_config_t *);
 
 /**************************************************
  * Authentication phase
@@ -258,8 +259,20 @@ static int processLogout(request_rec *r)
 static int Auth_persona_post_config(apr_pool_t *pconf, apr_pool_t *plog,
                                     apr_pool_t *ptemp, server_rec *s)
 {
-    ap_add_version_component(pconf, "mod_authn_persona/" VERSION);
-    return OK;
+  server_rec *sp;
+  persona_config_t *conf;
+
+  for (sp=s; sp; sp = sp->next) {
+    conf = ap_get_module_config(sp->module_config, &authn_persona_module);
+    if (!conf->secret->len) {
+      persona_generate_secret(pconf, sp, conf);
+      ap_log_error(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, sp, ERRTAG "created a secret since none was configured for %s", sp->server_hostname);
+    }
+  }
+  
+  ap_add_version_component(pconf, "mod_authn_persona/" VERSION);
+    
+  return OK;
 }
 
 /**************************************************
@@ -275,31 +288,27 @@ static void register_hooks(apr_pool_t *p)
 
 #define RAND_BYTES_AT_A_TIME 256
 
-static void persona_generate_secret(apr_pool_t *p, persona_config_t *conf) {
+static void persona_generate_secret(apr_pool_t *p, server_rec *s, persona_config_t *conf) {
   apr_random_t *prng = apr_random_standard_new(p);
   char *secret = apr_palloc(p, conf->secret_size);
+  apr_status_t status;
   
-  while (apr_random_secure_ready(prng) == APR_ENOTENOUGHENTROPY) {
+  while ((status = apr_random_secure_bytes(prng, secret, conf->secret_size)) == APR_ENOTENOUGHENTROPY) {
     unsigned char randbuf[RAND_BYTES_AT_A_TIME];
     apr_generate_random_bytes(randbuf, RAND_BYTES_AT_A_TIME);
     apr_random_add_entropy(prng, randbuf, RAND_BYTES_AT_A_TIME);
   }
   
-  apr_random_secure_bytes(prng, secret, conf->secret_size);
-
-  conf->secret = apr_palloc(p, sizeof(buffer_t));
+  /* XXX: if (status != OK) { */
   conf->secret->len = conf->secret_size;
   conf->secret->data = secret;
-  
 }
 
 static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
 {
   persona_config_t *conf = apr_palloc(p, sizeof(*conf));
   
-  /* XXX: This is slow and delays startup, should happen after startup */
-  persona_generate_secret(p, conf);
-  
+  conf->secret = apr_pcalloc(p, sizeof(buffer_t));
   conf->assertion_header = apr_pstrdup(p, PERSONA_ASSERTION_HEADER);
   conf->cookie_name = apr_pstrdup(p, PERSONA_COOKIE_NAME);
   conf->issuer_note = apr_pstrdup(p, PERSONA_ISSUER_NOTE);
