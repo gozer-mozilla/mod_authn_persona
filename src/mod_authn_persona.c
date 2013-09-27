@@ -119,7 +119,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   if (szCookieValue &&
       (cookie = validateCookie(r, conf->secret, szCookieValue))) {
     r->user = (char *) cookie->verifiedEmail;
-    apr_table_setn(r->notes, conf->issuer_note, cookie->identityIssuer);
+    apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
     apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP, cookie->identityIssuer);
     ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, ERRTAG "Valid auth cookie found, passthrough");
     return OK;
@@ -149,8 +149,6 @@ static int Auth_persona_check_auth(request_rec *r)
   register int x;
   const char *szRequireLine;
   char *szRequire_cmd;
-  
-  persona_config_t *conf = ap_get_module_config(r->server->module_config, &authn_persona_module);
 
   /* get require line */
   reqs_arr = ap_requires(r);
@@ -174,7 +172,7 @@ static int Auth_persona_check_auth(request_rec *r)
     // persona-idp: check host part of user name
     if (!strcmp("persona-idp", szRequire_cmd)) {
       char *reqIdp = ap_getword_conf(r->pool, &szRequireLine);
-      const char *issuer = apr_table_get(r->notes, conf->issuer_note);
+      const char *issuer = apr_table_get(r->notes, PERSONA_ISSUER_NOTE);
       if (!issuer || strcmp(issuer, reqIdp)) {
         char *script = apr_psprintf(r->pool,
                                     "showError({\"status\": \"failure\",\"reason\": \""
@@ -312,7 +310,6 @@ static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
   conf->secret = apr_pcalloc(p, sizeof(buffer_t));
   conf->assertion_header = PERSONA_ASSERTION_HEADER;
   conf->cookie_name = PERSONA_COOKIE_NAME;
-  conf->issuer_note = PERSONA_ISSUER_NOTE;
   conf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
   conf->secret_size = PERSONA_SECRET_SIZE;
   
