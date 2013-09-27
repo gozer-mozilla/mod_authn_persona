@@ -1,7 +1,5 @@
 #include "hmac.h"
 
-#define APRX_HMAC_BLOCKSIZE 64
-
 /* Somewhat arbitrary mask values, but they are straight from the spec */
 #define APRX_HMAC_IPAD 0x36
 #define APRX_HMAC_OPAD 0x5c
