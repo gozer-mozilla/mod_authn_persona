@@ -134,13 +134,13 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCook
 }
 
 /** Create a session cookie with a given identity */
-void sendSignedCookie(request_rec *r, const buffer_t *secret, const Cookie cookie)
+void sendSignedCookie(request_rec *r, const buffer_t *secret, const char *cookie_name, const Cookie cookie)
 {
   char *digest64 = generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer);
 
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie",
                 apr_psprintf(r->pool, "%s=%s|%s|%s; Path=/",
-                             PERSONA_COOKIE_NAME, cookie->verifiedEmail,
+                             cookie_name, cookie->verifiedEmail,
                              cookie->identityIssuer, digest64));
 }

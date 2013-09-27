@@ -37,6 +37,6 @@ char * extractCookie(request_rec *r, const buffer_t *secret, const char *szCooki
 Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCookieValue);
 
 /** Create a session cookie with a given identity */
-void sendSignedCookie(request_rec *r, const buffer_t *secret, const Cookie cookie);
+void sendSignedCookie(request_rec *r, const buffer_t *secret, const char *cookie_name, const Cookie cookie);
 
 #endif

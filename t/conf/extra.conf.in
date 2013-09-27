@@ -1,8 +1,9 @@
 LoadModule authn_persona_module @ServerRoot@/../.libs/mod_authn_persona.so
 
+AuthPersonaCookieName Test-Persona
+
 <Location />
    # this site requires Persona authentication
    AuthType Persona
    require valid-user
 </Location>
-

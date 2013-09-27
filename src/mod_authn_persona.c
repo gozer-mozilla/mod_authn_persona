@@ -57,6 +57,7 @@ module AP_MODULE_DECLARE_DATA authn_persona_module;
 
 apr_table_t *parseArgs(request_rec *, char *);
 const char* persona_server_secret_option(cmd_parms *, void *, const char *);
+const char* persona_server_cookie_name(cmd_parms *, void *, const char *);
 static void persona_generate_secret(apr_pool_t *, server_rec *, persona_config_t *);
 
 /**************************************************
@@ -97,7 +98,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       Cookie cookie = apr_pcalloc(r->pool, sizeof(struct _Cookie));
       cookie->verifiedEmail = res->verifiedEmail;
       cookie->identityIssuer = res->identityIssuer;
-      sendSignedCookie(r, conf->secret, cookie);
+      sendSignedCookie(r, conf->secret, conf->cookie_name, cookie);
       return DONE;
     } else {
       assert(res->errorResponse != NULL);
@@ -318,7 +319,7 @@ static void *persona_create_svr_config(apr_pool_t *p, server_rec *s)
   return conf;
 }
 
-const char* persona_server_secret_option(cmd_parms *cmd, void *cfg, const char *arg) {
+const char *persona_server_secret_option(cmd_parms *cmd, void *cfg, const char *arg) {
   server_rec *s = cmd->server;
   persona_config_t *conf = ap_get_module_config(s->module_config, &authn_persona_module);
   conf->secret->len = strlen(arg);
@@ -327,11 +328,22 @@ const char* persona_server_secret_option(cmd_parms *cmd, void *cfg, const char *
   return NULL;
 }
 
+const char *persona_server_cookie_name(cmd_parms *cmd, void *cfg, const char *arg) {
+  server_rec *s = cmd->server;
+  persona_config_t *conf = ap_get_module_config(s->module_config, &authn_persona_module);
+  conf->cookie_name = apr_pstrdup(cmd->pool, arg);
+  return NULL;
+}
+
 static const command_rec Auth_persona_options[] =
 {
   AP_INIT_TAKE1(
     "AuthPersonaServerSecret", persona_server_secret_option,
     NULL, RSRC_CONF, "Server secret to use for cookie signing"
+  ),
+  AP_INIT_TAKE1(
+    "AuthPersonaCookieName", persona_server_cookie_name,
+    NULL, RSRC_CONF, "Name of the Persona Cookie"
   ),
   {NULL}
 };
