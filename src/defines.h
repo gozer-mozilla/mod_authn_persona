@@ -6,6 +6,7 @@
 
 #define PERSONA_DEFAULT_VERIFIER_URL "https://verifier.login.persona.org/verify"
 #define PERSONA_COOKIE_NAME "Persona"
+#define PERSONA_ENV_IDP "PERSONA_IDP"
 #define PERSONA_ISSUER_NOTE "persona-identity-issuer"
 #define PERSONA_SECRET_SIZE APRX_HMAC_DIGESTSIZE
 #define PERSONA_ASSERTION_HEADER "X-Persona-Assertion"

@@ -8,4 +8,11 @@ AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
    # this site requires Persona authentication
    AuthType Persona
    require valid-user
+
+   <IfModule mod_include.c>
+    AddType text/html .shtml
+    AddOutputFilter INCLUDES .shtml
+    Options +Includes 
+   </IfModule>
+
 </Location>
