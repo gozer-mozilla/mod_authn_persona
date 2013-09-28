@@ -1,0 +1,6 @@
+ - Cookie itself can be made to never expire
+   - Needs expiry timestamp in the cookie itself protected via HMAC
+   - Needs verification and generation
+ - Logout handler not really implemented yet
+   - Needs to verify someone is already logged-in, otherwise, free redirector
+
