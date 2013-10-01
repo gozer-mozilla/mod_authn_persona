@@ -31,4 +31,4 @@ rpm: dist
 	rpmbuild -ta $(DIST_ARCHIVES)
 
 indent:
-	indent -i4 -npsl -di0 -br -nce -d0 -cli0 -npcs -nfc1 -nut $(SOURCES)
+	indent -i2 -npsl -di0 -br -nce -d0 -cli0 -npcs -nfc1 -nut $(SOURCES)
