@@ -60,6 +60,11 @@ const char* persona_server_secret_option(cmd_parms *, void *, const char *);
 const char* persona_server_cookie_name(cmd_parms *, void *, const char *);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 static void persona_generate_secret(apr_pool_t *, server_rec *, persona_config_t *);
+
+static int persona_authn_active(request_rec *r) {
+  return (strncmp("Persona", ap_auth_type(r), 9) == 0) ? 1 : 0;
+}
+
 /**************************************************
  * Authentication phase
  *
@@ -70,13 +75,10 @@ static int Auth_persona_check_cookie(request_rec *r)
   char *szCookieValue=NULL;
   const char *assertion=NULL;
 
-  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth_persona_check_cookie");
-
-  ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "AuthType '%s'", ap_auth_type(r));
-  if (strncmp("Persona", ap_auth_type(r), 9) != 0) {
-    ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth type must be 'Persona'");
-    return HTTP_UNAUTHORIZED;
+  if (!persona_authn_active(r)) {
+    return DECLINED;
   }
+  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth_persona_check_cookie");
 
   // We'll trade you a valid assertion for a session cookie!
   // this is a programatic XHR request.
@@ -149,6 +151,10 @@ static int Auth_persona_check_auth(request_rec *r)
   register int x;
   const char *szRequireLine;
   char *szRequire_cmd;
+
+  if (!persona_authn_active(r)) {
+    return DECLINED;
+  }
 
   /* get require line */
   reqs_arr = ap_requires(r);
