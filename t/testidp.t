@@ -33,7 +33,7 @@ my ($domain, $password, $email);
 }
 
 { #Initial request
-  my $res = GET "/";
+  my $res = GET "/auth/";
   ok t_cmp( $res->code, 401, "Initial request unauthorided");
 }
 
