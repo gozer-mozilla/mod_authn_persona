@@ -2,7 +2,6 @@ AUTOMAKE_OPTIONS=foreign subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 
 module_LTLIBRARIES = mod_authn_persona.la
-bin_PROGRAMS = bin2c
 
 moduledir = $(shell $(APXS) -q LIBEXECDIR)
 
@@ -16,17 +15,9 @@ HTTPD_CFLAGS = $(shell $(APXS) -q CFLAGS) -I $(shell $(APXS) -q INCLUDEDIR)
 
 AM_CFLAGS = -Isrc $(HTTPD_CFLAGS) $(APR_CFLAGS) $(APU_CFLAGS) $(YAJL_CFLAGS) $(LIBCURL_CPPFLAGS)
 
-mod_authn_persona_la_SOURCES = src/mod_authn_persona.c src/cookie.c src/verify.c src/hmac.c src/cookie.h src/defines.h src/verify.h src/hmac.h src/signin_page.h src/version.h
-BUILT_SOURCES = src/signin_page.h src/version.h
+mod_authn_persona_la_SOURCES = src/mod_authn_persona.c src/cookie.c src/verify.c src/hmac.c src/cookie.h src/defines.h src/verify.h src/hmac.h src/version.h
+BUILT_SOURCES = src/version.h
 mod_authn_persona_la_LDFLAGS = -module -avoid-version $(YAJL_LIBS) $(LIBCURL)
-
-
-bin2c_SOURCES = tools/bin2c.c
-
-CLEANFILES = src/signin_page.h
-
-src/signin_page.h: src/signin.html bin2c$(EXEEXT)
-	./bin2c$(EXEEXT) src/signin.html > src/signin_page.h
 
 check: test
 
