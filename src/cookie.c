@@ -41,8 +41,8 @@
 
 /** Generates a HMAC with the given inputs, returning a Base64-encoded
  * signature value. */
-static char *generateHMAC(request_rec *r, const buffer_t *secret,
-                               const char *userAddress, const char *issuer)
+static char *generateHMAC(request_rec *r, const buffer_t * secret,
+                          const char *userAddress, const char *issuer)
 {
   char *data;
   unsigned char digest[APRX_HMAC_DIGESTSIZE];
@@ -50,51 +50,66 @@ static char *generateHMAC(request_rec *r, const buffer_t *secret,
 
   data = apr_pstrcat(r->pool, userAddress, issuer, NULL);
 
-  if (aprx_hmac(secret->data, secret->len, data, strlen(data), &digest) != APR_SUCCESS) {
-    return NULL;  
+  if (aprx_hmac(secret->data, secret->len, data, strlen(data), &digest) !=
+      APR_SUCCESS) {
+    return NULL;
   }
 
   digest64 = apr_palloc(r->pool, apr_base64_encode_len(APRX_HMAC_DIGESTSIZE));
-  apr_base64_encode(digest64, (char*)digest, APRX_HMAC_DIGESTSIZE);
+  apr_base64_encode(digest64, (char *) digest, APRX_HMAC_DIGESTSIZE);
 
   return digest64;
 }
 
 /* Look through the 'Cookie' headers for the indicated cookie; extract it
  * and URL-unescape it. Return the cookie on success, NULL on failure. */
-char * extractCookie(request_rec *r, const buffer_t *secret, const char *szCookie_name)
+char *extractCookie(request_rec *r, const buffer_t * secret,
+                    const char *szCookie_name)
 {
-  char *szRaw_cookie_start=NULL, *szRaw_cookie_end;
+  char *szRaw_cookie_start = NULL, *szRaw_cookie_end;
   char *szCookie;
   /* get cookie string */
-  char*szRaw_cookie = (char*)apr_table_get( r->headers_in, "Cookie");
-  if (!szRaw_cookie) return 0;
+  char *szRaw_cookie = (char *) apr_table_get(r->headers_in, "Cookie");
+  if (!szRaw_cookie)
+    return 0;
 
   /* loop to search cookie name in cookie header */
   do {
     /* search cookie name in cookie string */
-    if (!(szRaw_cookie = strstr(szRaw_cookie, szCookie_name))) return 0;
-    szRaw_cookie_start=szRaw_cookie;
+    if (!(szRaw_cookie = strstr(szRaw_cookie, szCookie_name)))
+      return 0;
+    szRaw_cookie_start = szRaw_cookie;
     /* search '=' */
-    if (!(szRaw_cookie = strchr(szRaw_cookie, '='))) return 0;
-  } while (strncmp(szCookie_name,szRaw_cookie_start,szRaw_cookie-szRaw_cookie_start)!=0);
+    if (!(szRaw_cookie = strchr(szRaw_cookie, '=')))
+      return 0;
+  } while (strncmp
+           (szCookie_name, szRaw_cookie_start,
+            szRaw_cookie - szRaw_cookie_start) != 0);
 
   /* skip '=' */
   szRaw_cookie++;
 
   /* search end of cookie name value: ';' or end of cookie strings */
-  if (!((szRaw_cookie_end = strchr(szRaw_cookie, ';')) || (szRaw_cookie_end = strchr(szRaw_cookie, '\0')))) return 0;
+  if (!
+      ((szRaw_cookie_end = strchr(szRaw_cookie, ';'))
+       || (szRaw_cookie_end = strchr(szRaw_cookie, '\0'))))
+    return 0;
 
   /* dup the value string found in apache pool and set the result pool ptr to szCookie ptr */
-  if (!(szCookie = apr_pstrndup(r->pool, szRaw_cookie, szRaw_cookie_end-szRaw_cookie))) return 0;
+  if (!
+      (szCookie =
+       apr_pstrndup(r->pool, szRaw_cookie, szRaw_cookie_end - szRaw_cookie)))
+         return 0;
   /* unescape the value string */
-  if (ap_unescape_url(szCookie) != 0) return 0;
+  if (ap_unescape_url(szCookie) != 0)
+    return 0;
 
   return szCookie;
 }
 
 /* Check the cookie and make sure it is valid */
-Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCookieValue)
+Cookie validateCookie(request_rec *r, const buffer_t * secret,
+                      const char *szCookieValue)
 {
 
   /* split at | */
@@ -102,13 +117,15 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCook
   char *sig = NULL;
   char *addr = apr_strtok((char *) szCookieValue, "|", &iss);
   if (!addr) {
-    ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "malformed Persona cookie, can't extract email");
+    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
+                  ERRTAG "malformed Persona cookie, can't extract email");
     return NULL;
   }
 
   iss = apr_strtok((char *) iss, "|", &sig);
   if (!iss) {
-    ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "malformed Persona cookie, can't extract issuer");
+    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
+                  ERRTAG "malformed Persona cookie, can't extract issuer");
     return NULL;
   }
 
@@ -116,7 +133,8 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCook
 
   /* paranoia indicates that we should use a time-invariant compare here */
   if (strcmp(digest64, sig)) {
-    ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "invalid Persona cookie");
+    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
+                  ERRTAG "invalid Persona cookie");
     return NULL;
   }
 
@@ -127,9 +145,11 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCook
 }
 
 /** Create a session cookie with a given identity */
-void sendSignedCookie(request_rec *r, const buffer_t *secret, const char *cookie_name, const Cookie cookie)
+void sendSignedCookie(request_rec *r, const buffer_t * secret,
+                      const char *cookie_name, const Cookie cookie)
 {
-  char *digest64 = generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer);
+  char *digest64 =
+    generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer);
 
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie",

@@ -24,19 +24,23 @@
 #include "defines.h"
 #include "hmac.h"
 
-typedef struct _Cookie {
-  const char *verifiedEmail; // email that was verified
-  const char *identityIssuer; // domain that issued the identity
-}* Cookie;
+typedef struct _Cookie
+{
+  const char *verifiedEmail;    // email that was verified
+  const char *identityIssuer;   // domain that issued the identity
+}      *Cookie;
 
 /* Look through the 'Cookie' headers for the indicated cookie; extract it
  * and URL-unescape it. Return the cookie on success, NULL on failure. */
-char * extractCookie(request_rec *r, const buffer_t *secret, const char *szCookie_name);
+char *extractCookie(request_rec *r, const buffer_t * secret,
+                    const char *szCookie_name);
 
 /* Check the cookie and make sure it is valid */
-Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCookieValue);
+Cookie validateCookie(request_rec *r, const buffer_t * secret,
+                      const char *szCookieValue);
 
 /** Create a session cookie with a given identity */
-void sendSignedCookie(request_rec *r, const buffer_t *secret, const char *cookie_name, const Cookie cookie);
+void sendSignedCookie(request_rec *r, const buffer_t * secret,
+                      const char *cookie_name, const Cookie cookie);
 
 #endif

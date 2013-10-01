@@ -40,28 +40,31 @@
 #include "http_core.h"
 #include "http_log.h"
 #include "http_protocol.h"
-#include "http_request.h"   /* for ap_hook_(check_user_id | auth_checker)*/
+#include "http_request.h"       /* for ap_hook_(check_user_id | auth_checker) */
 #include "apr_base64.h"
 #include <yajl/yajl_tree.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
 
 /* Helper struct for CURL response */
-struct MemoryStruct {
+struct MemoryStruct
+{
   char *memory;
   size_t size;
   size_t realsize;
   request_rec *r;
 };
 
-static const char * jsonErrorResponse = "{\"status\":\"failure\", \"reason\": \"%s: %s\"}";
+static const char *jsonErrorResponse =
+  "{\"status\":\"failure\", \"reason\": \"%s: %s\"}";
 
 
 /** Callback function for streaming CURL response */
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb,
+                                  void *userp)
 {
   size_t realsize = size * nmemb;
-  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+  struct MemoryStruct *mem = (struct MemoryStruct *) userp;
 
   if (mem->size + realsize >= mem->realsize) {
     mem->realsize = mem->size + realsize + 256;
@@ -78,15 +81,17 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
 /* Pass the assertion to the verification service defined in the config,
  * and return the result to the caller */
-static char *verifyAssertionRemote(request_rec *r, const char *verifier_url, char *assertionText)
+static char *verifyAssertionRemote(request_rec *r, const char *verifier_url,
+                                   char *assertionText)
 {
   CURL *curl = curl_easy_init();
 
   curl_easy_setopt(curl, CURLOPT_URL, verifier_url);
   curl_easy_setopt(curl, CURLOPT_POST, 1);
 
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r,
-                ERRTAG  "Requesting verification with audience %s via %s", r->server->server_hostname, verifier_url);
+  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                ERRTAG "Requesting verification with audience %s via %s",
+                r->server->server_hostname, verifier_url);
 
   // XXX: audience should be an origin, see docs or issue mozilla/browserid#82
   char *body = apr_psprintf(r->pool, "assertion=%s&audience=%s",
@@ -100,13 +105,15 @@ static char *verifyAssertionRemote(request_rec *r, const char *verifier_url, cha
   chunk.realsize = 1024;
   chunk.r = r;
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
-  curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-mod_authn_persona-agent/1.0");
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &chunk);
+  curl_easy_setopt(curl, CURLOPT_USERAGENT,
+                   "libcurl-mod_authn_persona-agent/1.0");
 
   CURLcode result = curl_easy_perform(curl);
   if (result != 0) {
-    ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r ,
-                  ERRTAG  "Error while communicating with Persona verification server: %s",
+    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
+                  ERRTAG
+                  "Error while communicating with Persona verification server: %s",
                   curl_easy_strerror(result));
     curl_easy_cleanup(curl);
     return NULL;
@@ -114,8 +121,10 @@ static char *verifyAssertionRemote(request_rec *r, const char *verifier_url, cha
   long responseCode;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
   if (responseCode != 200) {
-    ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r ,
-                  ERRTAG  "Error while communicating with Persona verification server: result code %ld", responseCode);
+    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
+                  ERRTAG
+                  "Error while communicating with Persona verification server: result code %ld",
+                  responseCode);
     curl_easy_cleanup(curl);
     return NULL;
   }
@@ -128,32 +137,37 @@ static char *verifyAssertionRemote(request_rec *r, const char *verifier_url, cha
  *
  * TODO: local verification
  */
-VerifyResult processAssertion(request_rec *r, const char *verifier_url, const char *assertion)
+VerifyResult processAssertion(request_rec *r, const char *verifier_url,
+                              const char *assertion)
 {
   VerifyResult res = apr_pcalloc(r->pool, sizeof(struct _VerifyResult));
   yajl_val parsed_result = NULL;
 
-  char *assertionResult = verifyAssertionRemote(r, verifier_url, (char*)assertion);
+  char *assertionResult =
+    verifyAssertionRemote(r, verifier_url, (char *) assertion);
 
   if (assertionResult) {
     char errorBuffer[256];
     parsed_result = yajl_tree_parse(assertionResult, errorBuffer, 255);
     if (!parsed_result) {
       res->errorResponse = apr_psprintf(r->pool, jsonErrorResponse,
-                                       "malformed payload", errorBuffer);
+                                        "malformed payload", errorBuffer);
       return res;
     }
-  } else {
+  }
+  else {
     // XXX: verifyAssertionRemote should return specific error message.
     res->errorResponse = apr_psprintf(r->pool, jsonErrorResponse,
-                                     "communication error", "can't contact verification server");
+                                      "communication error",
+                                      "can't contact verification server");
     return res;
   }
 
   char *parsePath[2];
   parsePath[0] = "email";
   parsePath[1] = NULL;
-  yajl_val foundEmail = yajl_tree_get(parsed_result, (const char**)parsePath, yajl_t_string);
+  yajl_val foundEmail =
+    yajl_tree_get(parsed_result, (const char **) parsePath, yajl_t_string);
 
   if (!foundEmail) {
     res->errorResponse = apr_pstrdup(r->pool, assertionResult);
@@ -162,7 +176,8 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url, const ch
 
   parsePath[0] = "issuer";
   parsePath[1] = NULL;
-  yajl_val identityIssuer = yajl_tree_get(parsed_result, (const char**)parsePath, yajl_t_string);
+  yajl_val identityIssuer =
+    yajl_tree_get(parsed_result, (const char **) parsePath, yajl_t_string);
 
   if (!identityIssuer) {
     res->errorResponse = apr_pstrdup(r->pool, assertionResult);

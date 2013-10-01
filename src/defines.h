@@ -14,12 +14,14 @@
 
 #define ERRTAG "authn_persona: "
 
-typedef struct buffer {
+typedef struct buffer
+{
   size_t len;
   char *data;
 } buffer_t;
 
-typedef struct persona_config {
+typedef struct persona_config
+{
   buffer_t *secret;
   unsigned int secret_size;
   char *verifier_url;
