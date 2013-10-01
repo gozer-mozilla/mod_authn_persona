@@ -43,5 +43,5 @@ t/TEST
 t/conf/apache_test_config.pm
 t/conf/extra.conf
 t/conf/httpd.conf
-t/htdocs/
+t/htdocs/index.html
 t/logs/

@@ -5,14 +5,15 @@ AuthPersonaServerSecret Test123
 AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
 
 <Location />
-   # this site requires Persona authentication
-   AuthType Persona
-   require valid-user
-
    <IfModule mod_include.c>
     AddType text/html .shtml
     AddOutputFilter INCLUDES .shtml
     Options +Includes 
    </IfModule>
+</Location>
 
+Alias /auth @documentroot@
+<Location /auth>
+   AuthType Persona
+   require persona-idp login.mozilla.org
 </Location>

@@ -78,7 +78,9 @@ static int Auth_persona_check_cookie(request_rec *r)
   if (!persona_authn_active(r)) {
     return DECLINED;
   }
-  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth_persona_check_cookie");
+  
+  /* We take over all HTTP_UNAUTHORIZED pages */
+  ap_custom_response(r, HTTP_UNAUTHORIZED, "/login.shtml"); 
 
   // We'll trade you a valid assertion for a session cookie!
   // this is a programatic XHR request.
@@ -123,17 +125,10 @@ static int Auth_persona_check_cookie(request_rec *r)
     r->user = (char *) cookie->verifiedEmail;
     apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
     apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP, cookie->identityIssuer);
-    ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, ERRTAG "Valid auth cookie found, passthrough");
     return OK;
   }
 
-  ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, ERRTAG "Persona cookie not found; not authorized!");
-  r->status = HTTP_UNAUTHORIZED;
-  ap_set_content_type(r, "text/html");
-  ap_rwrite(src_signin_html, sizeof(src_signin_html), r);
-  ap_rprintf(r, "var loggedInUser = undefined;\n");
-  ap_rwrite(PERSONA_END_PAGE, sizeof(PERSONA_END_PAGE), r);
-  return DONE;
+  return HTTP_UNAUTHORIZED;
 }
 
 
@@ -155,6 +150,9 @@ static int Auth_persona_check_auth(request_rec *r)
   if (!persona_authn_active(r)) {
     return DECLINED;
   }
+
+  /* We take over all HTTP_UNAUTHORIZED pages */
+  ap_custom_response(r, HTTP_UNAUTHORIZED, "/login.shtml");
 
   /* get require line */
   reqs_arr = ap_requires(r);
@@ -180,28 +178,20 @@ static int Auth_persona_check_auth(request_rec *r)
       char *reqIdp = ap_getword_conf(r->pool, &szRequireLine);
       const char *issuer = apr_table_get(r->notes, PERSONA_ISSUER_NOTE);
       if (!issuer || strcmp(issuer, reqIdp)) {
-        char *script = apr_psprintf(r->pool,
-                                    "showError({\"status\": \"failure\",\"reason\": \""
-                                    "user '%s' is not authenticated by IdP '%s' (but by '%s')\"});\n"
-                                    "var loggedInUser = '%s';",
-                                    r->user, reqIdp, (issuer ? issuer : "unknown"), r->user);
-        r->status = HTTP_FORBIDDEN;
-        ap_set_content_type(r, "text/html");
-        ap_rwrite(src_signin_html, sizeof(src_signin_html), r);
-        ap_rwrite(script, strlen(script), r);
-        ap_rwrite(PERSONA_END_PAGE, sizeof(PERSONA_END_PAGE), r);
 	ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r,
                     ERRTAG "user '%s' is not authorized by idp:%s, but idp:%s instead", r->user, reqIdp, (issuer ? issuer : "unknown"));
-        return HTTP_FORBIDDEN;
+        
+        char *error = apr_psprintf(r->pool, "user '%s' is not authenticated by IdP '%s' (but by '%s')", r->user, reqIdp, (issuer ? issuer : "unknown"));
+        apr_table_setn(r->subprocess_env, "PERSONA_ERROR", error);
+
+        return DECLINED;
       }
       
       ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r,
-                    ERRTAG "user '%s' is authorized", r->user);
+                    ERRTAG "user '%s' is authorized by idp:%s", issuer, r->user);
       return OK;
     }
-
   }
-  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r ,ERRTAG  "user '%s' is not authorized",r->user);
 
   /* give others a chance */
   return DECLINED;
@@ -238,6 +228,7 @@ apr_table_t *parseArgs(request_rec *r, char *argStr)
   return vars;
 }
 
+/* XXX: Not good, needs to verify one is logged in, otherwise, it's a free redirector */
 static int processLogout(request_rec *r)
 {
   persona_config_t *conf = ap_get_module_config(r->server->module_config, &authn_persona_module);

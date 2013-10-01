@@ -1,0 +1,11 @@
+<html><body>
+Hello world</br>
+
+You seem to be: <b><!--#echo var="REMOTE_USER" --></b>
+</br>
+Vouched for by: <b><!--#echo var="PERSONA_IDP" --></b>
+
+<pre>
+<!--#printenv --> 
+</pre>
+</body></html>
