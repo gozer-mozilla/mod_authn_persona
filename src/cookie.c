@@ -72,8 +72,6 @@ char * extractCookie(request_rec *r, const buffer_t *secret, const char *szCooki
 
   /* loop to search cookie name in cookie header */
   do {
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, ERRTAG "Checking cookie %s, looking for %s", szRaw_cookie, szCookie_name);
-
     /* search cookie name in cookie string */
     if (!(szRaw_cookie = strstr(szRaw_cookie, szCookie_name))) return 0;
     szRaw_cookie_start=szRaw_cookie;
@@ -91,8 +89,6 @@ char * extractCookie(request_rec *r, const buffer_t *secret, const char *szCooki
   if (!(szCookie = apr_pstrndup(r->pool, szRaw_cookie, szRaw_cookie_end-szRaw_cookie))) return 0;
   /* unescape the value string */
   if (ap_unescape_url(szCookie) != 0) return 0;
-
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, ERRTAG "finished cookie scan, returning %s", szCookie);
 
   return szCookie;
 }
@@ -117,9 +113,6 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret, const char *szCook
   }
 
   char *digest64 = generateHMAC(r, secret, addr, iss);
-
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, ERRTAG "Got cookie: email is %s; expected digest is %s; got digest %s",
-                addr, digest64, sig);
 
   /* paranoia indicates that we should use a time-invariant compare here */
   if (strcmp(digest64, sig)) {
