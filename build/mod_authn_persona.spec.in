@@ -32,9 +32,27 @@ rm %{buildroot}/%{_libdir}/httpd/modules/*.la
 
 %{__mkdir_p} %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__cat} << EOF > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{name}.conf
-LoadModule @PACKAGE@_module modules/%{name}.so
+LoadModule authn_persona_module modules/%{name}.so
 
-Alias /login /usr/share/@PACKAGE@/login.shtml
+Alias /login.shtml /usr/share/@PACKAGE@/login.shtml
+
+#make sure to allow the login page
+<Location /login.shtml>
+   <IfModule mod_include.c>
+    AddType text/html .shtml
+    AddOutputFilter INCLUDES .shtml
+    Options +Includes 
+   </IfModule>
+  Satisfy Any
+  Allow from all
+</Location>
+
+#AuthPersonaServerSecret SomeVerySecretPassword
+#<Location />
+#  AuthType Persona
+#  require valid-user
+#</Location>
+
 
 EOF
 
