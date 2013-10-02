@@ -5,7 +5,7 @@ module_LTLIBRARIES = mod_authn_persona.la
 
 moduledir = $(shell $(APXS) -q LIBEXECDIR)
 
-EXTRA_DIST=t README.md build/mod_authn_persona.spec build/test.pl .indent.pro src/signin.html
+EXTRA_DIST=t README.md build/mod_authn_persona.spec build/test.pl .indent.pro
 
 APR_CONFIG = $(shell $(APXS) -q APR_CONFIG)
 APU_CONFIG = $(shell $(APXS) -q APU_CONFIG)
