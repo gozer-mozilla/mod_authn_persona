@@ -31,7 +31,7 @@ t/TEST: build/test.pl
 	$(PERL) build/test.pl -apxs $(APXS)
 
 rpm: dist
-	rpmbuild --buildroot=rpmbuild -ta $(DIST_ARCHIVES)
+	rpmbuild -ta $(DIST_ARCHIVES)
 
 indent:
 	indent -i2 -npsl -di0 -br -nce -d0 -cli0 -npcs -nfc1 -nut $(SOURCES)
