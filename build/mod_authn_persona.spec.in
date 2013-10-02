@@ -34,6 +34,8 @@ rm %{buildroot}/%{_libdir}/httpd/modules/*.la
 %{__cat} << EOF > %{buildroot}%{_sysconfdir}/httpd/conf.d/%{name}.conf
 LoadModule @PACKAGE@_module modules/%{name}.so
 
+Alias /login @prefix@/share/@PACKAGE@/login.shtml
+
 EOF
 
 %clean

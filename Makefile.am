@@ -19,6 +19,9 @@ mod_authn_persona_la_SOURCES = src/mod_authn_persona.c src/cookie.c src/verify.c
 BUILT_SOURCES = src/version.h
 mod_authn_persona_la_LDFLAGS = -module -avoid-version $(YAJL_LIBS) $(LIBCURL)
 
+mod_authn_persona_ladir = $(datarootdir)/$(PACKAGE)
+mod_authn_persona_la_DATA = t/htdocs/login.shtml
+
 check: test
 
 test: all t/TEST
@@ -28,7 +31,7 @@ t/TEST: build/test.pl
 	$(PERL) build/test.pl -apxs $(APXS)
 
 rpm: dist
-	rpmbuild -ta $(DIST_ARCHIVES)
+	rpmbuild --buildroot=rpmbuild -ta $(DIST_ARCHIVES)
 
 indent:
 	indent -i2 -npsl -di0 -br -nce -d0 -cli0 -npcs -nfc1 -nut $(SOURCES)
