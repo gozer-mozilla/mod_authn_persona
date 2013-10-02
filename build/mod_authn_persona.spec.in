@@ -46,7 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc README*
 %{_libdir}/httpd/modules/*.so
-%{_datadir}/login.shtml
+%{_datadir}/%{name}/login.shtml
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 
 %changelog
