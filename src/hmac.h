@@ -1,14 +1,13 @@
-#ifndef __APRX_HMAC_H__
-#define __APRX_HMAC_H__
+#ifndef __HMAC_H__
+#define __HMAC_H__
 
 #include <apr_strings.h>
 #include <apr_sha1.h>
 #include <apr_base64.h>
 
-#define APRX_HMAC_DIGESTSIZE APR_SHA1_DIGESTSIZE
-#define APRX_HMAC_BLOCKSIZE 64
+#define HMAC_DIGESTSIZE APR_SHA1_DIGESTSIZE
+#define HMAC_BLOCKSIZE 64
 
-apr_status_t aprx_hmac(const void *key, apr_size_t keylen, const void *data,
-                       apr_size_t datalen, void *result);
+void hmac(const void *, apr_size_t, const void *, apr_size_t, void *);
 
 #endif
