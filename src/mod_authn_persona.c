@@ -189,10 +189,10 @@ static int Auth_persona_check_auth(request_rec *r)
                       "user '%s' is not authorized by idp:%s, but idp:%s instead",
                       r->user, reqIdp, (issuer ? issuer : "unknown"));
 
-        char *error =
-          apr_psprintf(r->pool,
-                       "user '%s' is not authenticated by IdP '%s' (but by '%s')",
-                       r->user, reqIdp, (issuer ? issuer : "unknown"));
+        char *error = apr_psprintf(r->pool,
+                                   "user '%s' is not authenticated by IdP '%s' (but by '%s')",
+                                   r->user, reqIdp,
+                                   (issuer ? issuer : "unknown"));
         apr_table_setn(r->subprocess_env, "PERSONA_ERROR", error);
 
         return DECLINED;
