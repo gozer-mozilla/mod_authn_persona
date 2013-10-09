@@ -8,22 +8,25 @@ Installation
 ```
 git clone https://github.com/lloyd/mod_authn_persona.git
 cd mod_authn_persona
-make
+./buildconf
+./configure --with-apxs=/usr/sbin/apxs
 sudo make install
 ```
 
-(this assumes apxs is behaving properly on your system; set the
-APXS_PATH variable to your apxs or apxs2 as appropriate)
+(this assumes apxs is behaving properly on your system; use --with-apxs
+to point to your apxs or apxs2 binary of choice)
 
 # Configuration
 
 Configure the module:
 
     LoadModule authn_persona_module modules/mod_authn_persona.so
-
+    
+    #AuthPersonaServerSecret XXXSomeVerySecretUniqueString
+    
     <Location />
        AuthType Persona
-       Require valid-user # XXX: figure out how this should work
+       Require valid-user
        # Or, require users with host/IdP example.com:
        # Require persona-idp example.com
        # Or, require specific users
@@ -36,7 +39,7 @@ requests to the server.
 Dependencies
 ============
 
-* apache 2.0 or later (mostly tested with 2.2 so far)
+* apache 2.0.x or 2.2.x (mostly tested with 2.2 so far)
 * libcurl 7.10.8 or later
 * yajl 2.0 or later
 
