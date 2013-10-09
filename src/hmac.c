@@ -18,7 +18,7 @@ static void mxor(void *, const void *, apr_size_t);
  *
  */
 void hmac(const void *key, apr_size_t keylen, const void *data,
-                       apr_size_t datalen, void *result)
+          apr_size_t datalen, void *result)
 {
   apr_sha1_ctx_t inner;
   apr_sha1_ctx_t outer;

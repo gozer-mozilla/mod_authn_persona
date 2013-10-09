@@ -51,14 +51,14 @@ static char *generateHMAC(request_rec *r, const buffer_t *secret,
   data = apr_pstrcat(r->pool, userAddress, issuer, NULL);
   hmac(secret->data, secret->len, data, strlen(data), &digest);
   digest64 = apr_palloc(r->pool, apr_base64_encode_len(HMAC_DIGESTSIZE));
-  apr_base64_encode(digest64, (char*)digest, HMAC_DIGESTSIZE);
+  apr_base64_encode(digest64, (char *) digest, HMAC_DIGESTSIZE);
 
   return digest64;
 }
 
 /* Look through the 'Cookie' headers for the indicated cookie; extract it
  * and URL-unescape it. Return the cookie on success, NULL on failure. */
-char *extractCookie(request_rec *r, const buffer_t * secret,
+char *extractCookie(request_rec *r, const buffer_t *secret,
                     const char *szCookie_name)
 {
   char *szRaw_cookie_start = NULL, *szRaw_cookie_end;
@@ -85,9 +85,8 @@ char *extractCookie(request_rec *r, const buffer_t * secret,
   szRaw_cookie++;
 
   /* search end of cookie name value: ';' or end of cookie strings */
-  if (!
-      ((szRaw_cookie_end = strchr(szRaw_cookie, ';'))
-       || (szRaw_cookie_end = strchr(szRaw_cookie, '\0'))))
+  if (!((szRaw_cookie_end = strchr(szRaw_cookie, ';'))
+        || (szRaw_cookie_end = strchr(szRaw_cookie, '\0'))))
     return 0;
 
   /* dup the value string found in apache pool and set the result pool ptr to szCookie ptr */
@@ -103,7 +102,7 @@ char *extractCookie(request_rec *r, const buffer_t * secret,
 }
 
 /* Check the cookie and make sure it is valid */
-Cookie validateCookie(request_rec *r, const buffer_t * secret,
+Cookie validateCookie(request_rec *r, const buffer_t *secret,
                       const char *szCookieValue)
 {
 
@@ -140,7 +139,7 @@ Cookie validateCookie(request_rec *r, const buffer_t * secret,
 }
 
 /** Create a session cookie with a given identity */
-void sendSignedCookie(request_rec *r, const buffer_t * secret,
+void sendSignedCookie(request_rec *r, const buffer_t *secret,
                       const char *cookie_name, const Cookie cookie)
 {
   char *digest64 =
