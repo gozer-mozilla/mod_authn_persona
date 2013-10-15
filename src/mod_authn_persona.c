@@ -80,6 +80,8 @@ static int Auth_persona_check_cookie(request_rec *r)
     return DECLINED;
   }
 
+  apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
+
   /* We take over all HTTP_UNAUTHORIZED pages */
   ap_custom_response(r, HTTP_UNAUTHORIZED, "/login.shtml");
 
@@ -154,6 +156,8 @@ static int Auth_persona_check_auth(request_rec *r)
   if (!persona_authn_active(r)) {
     return DECLINED;
   }
+
+  apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
   /* We take over all HTTP_UNAUTHORIZED pages */
   ap_custom_response(r, HTTP_UNAUTHORIZED, "/login.shtml");
