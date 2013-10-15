@@ -3,6 +3,7 @@ LoadModule authn_persona_module @ServerRoot@/../.libs/mod_authn_persona.so
 AuthPersonaCookieName   Test-Persona
 AuthPersonaServerSecret Test123
 AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
+AuthPersonaLoginURL	/login.shtml
 
 <Location />
    <IfModule mod_include.c>
@@ -14,6 +15,7 @@ AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
 
 Alias /auth @documentroot@
 <Location /auth>
-   AuthType Persona
-   require persona-idp login.mozilla.org
+  Authname "Persona Login"
+  AuthType Persona
+  require valid-user
 </Location>

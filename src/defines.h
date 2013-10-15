@@ -5,6 +5,7 @@
 #include "hmac.h"
 
 #define PERSONA_DEFAULT_VERIFIER_URL "https://verifier.login.persona.org/verify"
+#define PERSONA_LOGIN_URL "/login.shtml"
 #define PERSONA_COOKIE_NAME "Persona"
 #define PERSONA_ENV_IDP "PERSONA_IDP"
 #define PERSONA_ISSUER_NOTE "persona-identity-issuer"
@@ -25,6 +26,7 @@ typedef struct persona_config
   buffer_t *secret;
   unsigned int secret_size;
   char *verifier_url;
+  char *login_url;
   char *cookie_name;
   char *assertion_header;
 } persona_config_t;

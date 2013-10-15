@@ -23,6 +23,9 @@ Configure the module:
     LoadModule authn_persona_module modules/mod_authn_persona.so
     
     #AuthPersonaServerSecret XXXSomeVerySecretUniqueString
+    #AuthPersonaCookieName   Persona
+    #AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
+    #AuthPersonaLoginURL     /login.shtml
     
     <Location />
        AuthType Persona
