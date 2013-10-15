@@ -232,7 +232,14 @@ window.onload = function() {
 };
 
 document.getElementById('auth').onclick = function() {
-  navigator.id.request();
+  navigator.id.request({
+    //backgroundColor: '',
+    //siteLogo: '',
+    //siteName: '',
+    //termsOfService: '',
+    //privacyPolicy: '',
+    //returnTo: '',
+  });
 };
 
 function showError(rsp) {
