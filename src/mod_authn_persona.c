@@ -44,7 +44,6 @@
 #include <http_request.h>       /* for ap_hook_(check_user_id | auth_checker) */
 #include <apr_base64.h>
 
-#include <yajl/yajl_tree.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <assert.h>
@@ -97,10 +96,10 @@ static int Auth_persona_check_cookie(request_rec *r)
   if (assertion) {
     VerifyResult res = processAssertion(r, conf->verifier_url, assertion);
 
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
-                  "Assertion received '%s'", assertion);
-
-    if (res->verifiedEmail) {
+    if (!res->errorResponse) {
+      assert(res->verifiedEmail);
+      assert(res->identityIssuer);
+      
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
                     "email '%s' verified, vouched for by issuer '%s'",
                     res->verifiedEmail, res->identityIssuer);
@@ -111,8 +110,6 @@ static int Auth_persona_check_cookie(request_rec *r)
       return DONE;
     }
     else {
-      assert(res->errorResponse != NULL);
-
       r->status = HTTP_INTERNAL_SERVER_ERROR;
       ap_set_content_type(r, "application/json");
       ap_rwrite(res->errorResponse, strlen(res->errorResponse), r);
