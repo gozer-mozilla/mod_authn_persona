@@ -45,10 +45,14 @@
 #include "http_request.h"       /* for ap_hook_(check_user_id | auth_checker) */
 #include "apr_base64.h"
 
+#include <json/json.h>
+
 typedef struct _VerifyResult
 {
   const char *verifiedEmail;    // email that was verified
   const char *identityIssuer;   // domain that issued the identity
+  const char *audience;         // domain that requested the identity
+  apr_time_t  expires;		// Expiry of the assertion
   const char *errorResponse;
 }            *VerifyResult;
 

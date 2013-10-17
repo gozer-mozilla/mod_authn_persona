@@ -42,7 +42,6 @@
 #include "http_protocol.h"
 #include "http_request.h"       /* for ap_hook_(check_user_id | auth_checker) */
 #include "apr_base64.h"
-#include <yajl/yajl_tree.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
 
@@ -141,17 +140,22 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
                               const char *assertion)
 {
   VerifyResult res = apr_pcalloc(r->pool, sizeof(struct _VerifyResult));
-  yajl_val parsed_result = NULL;
+  json_tokener *tok =  json_tokener_new();
+  json_object *jobj = NULL;
+  enum json_tokener_error jerr;
 
   char *assertionResult =
     verifyAssertionRemote(r, verifier_url, (char *) assertion);
 
   if (assertionResult) {
-    char errorBuffer[256];
-    parsed_result = yajl_tree_parse(assertionResult, errorBuffer, 255);
-    if (!parsed_result) {
+    jobj = json_tokener_parse_ex(tok, assertionResult, strlen(assertionResult));
+    jerr = json_tokener_get_error(tok);
+    
+    if (json_tokener_success != jerr) {
+      
       res->errorResponse = apr_psprintf(r->pool, jsonErrorResponse,
-                                        "malformed payload", errorBuffer);
+                                        "malformed payload", json_tokener_error_desc(jerr));
+      json_tokener_free(tok);
       return res;
     }
   }
@@ -162,30 +166,48 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
                                       "can't contact verification server");
     return res;
   }
+  
+  struct json_object_iterator it = json_object_iter_begin(jobj);
+  struct json_object_iterator itEnd = json_object_iter_end(jobj);
 
-  char *parsePath[2];
-  parsePath[0] = "email";
-  parsePath[1] = NULL;
-  yajl_val foundEmail =
-    yajl_tree_get(parsed_result, (const char **) parsePath, yajl_t_string);
+  while (!json_object_iter_equal(&it, &itEnd)) {
+    const char *key = json_object_iter_peek_name(&it);
+    json_object *val = json_object_iter_peek_value(&it);
 
-  if (!foundEmail) {
-    res->errorResponse = apr_pstrdup(r->pool, assertionResult);
-    return res;
+    if (strcmp("email", key)==0) {
+	res->verifiedEmail = apr_pstrdup(r->pool, json_object_get_string(val));
+    } else if (strcmp("issuer", key)==0) {
+	res->identityIssuer = apr_pstrdup(r->pool, json_object_get_string(val));
+    } else if (strcmp("audience", key)==0) {
+	res->audience = apr_pstrdup(r->pool, json_object_get_string(val));
+    } else if (strcmp("expires", key)==0) {
+	 apr_time_ansi_put(&res->expires, json_object_get_int64(val));
+    } else if (strcmp("status", key)==0) {
+        if (!json_object_get_boolean(val)) {
+	  res->errorResponse = apr_psprintf(r->pool, "Assertion status was %s",  json_object_to_json_string(val));
+	}
+    }
+    json_object_iter_next(&it);
   }
+  
+  json_tokener_free(tok);
 
-  parsePath[0] = "issuer";
-  parsePath[1] = NULL;
-  yajl_val identityIssuer =
-    yajl_tree_get(parsed_result, (const char **) parsePath, yajl_t_string);
-
-  if (!identityIssuer) {
-    res->errorResponse = apr_pstrdup(r->pool, assertionResult);
-    return res;
+  // XXX: This is bad, doesn't catch multiple missing bits
+  if (!res->verifiedEmail) {
+    res->errorResponse = apr_pstrdup(r->pool, "Missing e-mail in assertion");
   }
-
-  res->verifiedEmail = apr_pstrdup(r->pool, foundEmail->u.string);
-  res->identityIssuer = apr_pstrdup(r->pool, identityIssuer->u.string);
-
+  if (!res->identityIssuer) {
+    res->errorResponse = apr_pstrdup(r->pool, "Missing issuer in assertion");
+  }
+  if (strcmp(res->audience, r->server->server_hostname) !=0 ) {
+    res->errorResponse = apr_psprintf(r->pool, "Audience %s doesn't match %s", res->audience, r->server->server_hostname);
+  }
+  
+  if (res->expires <= apr_time_now()) {
+    char exp_time[APR_RFC822_DATE_LEN];
+    apr_rfc822_date(exp_time, res->expires);
+    res->errorResponse = apr_psprintf(r->pool, "Assertion expired on %s", exp_time); 
+  }
+ 
   return res;
 }
