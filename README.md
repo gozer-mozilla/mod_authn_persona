@@ -44,7 +44,7 @@ Dependencies
 
 * apache 2.0.x or 2.2.x (mostly tested with 2.2 so far)
 * libcurl 7.10.8 or later
-* yajl 2.0 or later
+* json-c
 
 # Features
 

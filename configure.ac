@@ -24,7 +24,7 @@ LIBCURL_CHECK_CONFIG([],[],[],[
     AC_MSG_ERROR([libcurl is required])
 ])
 
-PKG_CHECK_MODULES([YAJL], [yajl])
+PKG_CHECK_MODULES([JSON], [json])
 
 AC_PROG_PERL_VERSION(5.8.0)
 AC_PERL_MODULE_VERSION(Apache::Test 0, , AC_MSG_ERROR(Need some Perl modules))
