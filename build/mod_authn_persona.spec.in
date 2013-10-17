@@ -10,8 +10,8 @@ Packager:	Philippe M. Chiasson <gozer@ectoplasm.org>
 Source:         %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  httpd-devel, pkgconfig, perl(Apache::Test), yajl-devel >= 2.0
-Requires:       httpd, yajl >= 2.0
+BuildRequires:  httpd-devel, pkgconfig, perl(Apache::Test), json-c-devel
+Requires:       httpd, json-c
 
 %description
 
