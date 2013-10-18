@@ -144,10 +144,19 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
 {
   char *digest64 =
     generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer);
+    
+  char *path = "Path=/;";
+  char *expires = "";
+  
+  if(cookie->expires > 0) {
+    expires =  apr_pstrcat(r->pool, " Max-Age=", apr_itoa(r->pool, cookie->expires), ";", NULL);
+  }
+    
+  //HttpOnly; Secure; Version=1
+  char *cookie_buf = apr_psprintf(r->pool, "%s=%s|%s|%s; HttpOnly; Version=1; %s%s",
+                             cookie_name, cookie->verifiedEmail,
+                             cookie->identityIssuer, digest64, path, expires);
 
   /* syntax of cookie is identity|signature */
-  apr_table_set(r->err_headers_out, "Set-Cookie",
-                apr_psprintf(r->pool, "%s=%s|%s|%s; Path=/",
-                             cookie_name, cookie->verifiedEmail,
-                             cookie->identityIssuer, digest64));
+  apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
 }

@@ -7,6 +7,7 @@
 #define PERSONA_DEFAULT_VERIFIER_URL "https://verifier.login.persona.org/verify"
 #define PERSONA_LOGIN_URL "/login.shtml"
 #define PERSONA_COOKIE_NAME "Persona"
+#define PERSONA_COOKIE_DURATION 60*60*12
 #define PERSONA_ENV_IDP "PERSONA_IDP"
 #define PERSONA_ISSUER_NOTE "persona-identity-issuer"
 #define PERSONA_SECRET_SIZE HMAC_DIGESTSIZE
@@ -25,6 +26,7 @@ typedef struct persona_config
 {
   buffer_t *secret;
   unsigned int secret_size;
+  unsigned int cookie_duration;
   char *verifier_url;
   char *login_url;
   char *cookie_name;

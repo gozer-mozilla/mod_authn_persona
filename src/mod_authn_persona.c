@@ -56,6 +56,7 @@ module AP_MODULE_DECLARE_DATA authn_persona_module;
 apr_table_t *parseArgs(request_rec *, char *);
 const char *persona_server_secret_option(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_name(cmd_parms *, void *, const char *);
+const char *persona_server_cookie_duration(cmd_parms *, void *, const char *);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
 static void persona_generate_secret(apr_pool_t *, server_rec *,
@@ -106,6 +107,8 @@ static int Auth_persona_check_cookie(request_rec *r)
       Cookie cookie = apr_pcalloc(r->pool, sizeof(struct _Cookie));
       cookie->verifiedEmail = res->verifiedEmail;
       cookie->identityIssuer = res->identityIssuer;
+      cookie->expires = conf->cookie_duration;
+      // also check res->expires;
       sendSignedCookie(r, conf->secret, conf->cookie_name, cookie);
       return DONE;
     }
@@ -332,6 +335,7 @@ static void *persona_create_svr_config(apr_pool_t * p, server_rec *s)
   conf->secret = apr_pcalloc(p, sizeof(buffer_t));
   conf->assertion_header = PERSONA_ASSERTION_HEADER;
   conf->cookie_name = PERSONA_COOKIE_NAME;
+  conf->cookie_duration = PERSONA_COOKIE_DURATION;
   conf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
   conf->secret_size = PERSONA_SECRET_SIZE;
   conf->login_url = PERSONA_LOGIN_URL;
@@ -348,6 +352,16 @@ const char *persona_server_secret_option(cmd_parms *cmd, void *cfg,
   conf->secret->len = strlen(arg);
   conf->secret->data = apr_palloc(cmd->pool, conf->secret->len);
   strncpy(conf->secret->data, arg, conf->secret->len);
+  return NULL;
+}
+
+const char *persona_server_cookie_duration(cmd_parms *cmd, void *cfg,
+                                       const char *arg)
+{
+  server_rec *s = cmd->server;
+  persona_config_t *conf =
+    ap_get_module_config(s->module_config, &authn_persona_module);
+  conf->cookie_duration = atoi(arg);
   return NULL;
 }
 
@@ -386,10 +400,12 @@ static const command_rec Auth_persona_options[] = {
                 NULL, RSRC_CONF, "Server secret to use for cookie signing"),
   AP_INIT_TAKE1("AuthPersonaCookieName", persona_server_cookie_name,
                 NULL, RSRC_CONF, "Name of the Persona Cookie"),
+  AP_INIT_TAKE1("AuthPersonaCookieDuration", persona_server_cookie_duration,
+                NULL, RSRC_CONF, "Duration of the Persona Cookie"),	
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
                 NULL, RSRC_CONF, "URL to a Persona Verfier service"),
   AP_INIT_TAKE1("AuthPersonaLoginURL", persona_server_login_url,
-                NULL, RSRC_CONF, "URL to a Persona login page"),		
+                NULL, RSRC_CONF, "URL to a Persona login page"),
   {NULL}
 };
 

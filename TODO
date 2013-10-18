@@ -3,6 +3,8 @@
  - Cookie itself can be made to never expire
    - Needs expiry timestamp in the cookie itself protected via HMAC
    - Needs verification and generation
+   - Needs to be able to set cookie-domain
+   - Needs to be able to set Secure flag
  - Need an AuthPersonaAuthoritative directive
  - Logout handler not really implemented yet
    - Needs to verify someone is already logged-in, otherwise, free redirector
