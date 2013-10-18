@@ -52,7 +52,7 @@ typedef struct _VerifyResult
   const char *verifiedEmail;    // email that was verified
   const char *identityIssuer;   // domain that issued the identity
   const char *audience;         // domain that requested the identity
-  apr_time_t  expires;		// Expiry of the assertion
+  apr_time_t expires;           // Expiry of the assertion
   const char *errorResponse;
 }            *VerifyResult;
 

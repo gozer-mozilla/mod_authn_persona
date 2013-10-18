@@ -80,7 +80,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   if (!persona_authn_active(r)) {
     return DECLINED;
   }
-  
+
   persona_config_t *conf =
     ap_get_module_config(r->server->module_config, &authn_persona_module);
 
@@ -100,7 +100,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     if (!res->errorResponse) {
       assert(res->verifiedEmail);
       assert(res->identityIssuer);
-      
+
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
                     "email '%s' verified, vouched for by issuer '%s'",
                     res->verifiedEmail, res->identityIssuer);
@@ -157,7 +157,7 @@ static int Auth_persona_check_auth(request_rec *r)
   if (!persona_authn_active(r)) {
     return DECLINED;
   }
-  
+
   persona_config_t *conf =
     ap_get_module_config(r->server->module_config, &authn_persona_module);
 
@@ -356,7 +356,7 @@ const char *persona_server_secret_option(cmd_parms *cmd, void *cfg,
 }
 
 const char *persona_server_cookie_duration(cmd_parms *cmd, void *cfg,
-                                       const char *arg)
+                                           const char *arg)
 {
   server_rec *s = cmd->server;
   persona_config_t *conf =
@@ -386,7 +386,7 @@ const char *persona_server_verifier_url(cmd_parms *cmd, void *cfg,
 }
 
 const char *persona_server_login_url(cmd_parms *cmd, void *cfg,
-                                        const char *arg)
+                                     const char *arg)
 {
   server_rec *s = cmd->server;
   persona_config_t *conf =
@@ -401,7 +401,7 @@ static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaCookieName", persona_server_cookie_name,
                 NULL, RSRC_CONF, "Name of the Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaCookieDuration", persona_server_cookie_duration,
-                NULL, RSRC_CONF, "Duration of the Persona Cookie"),	
+                NULL, RSRC_CONF, "Duration of the Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
                 NULL, RSRC_CONF, "URL to a Persona Verfier service"),
   AP_INIT_TAKE1("AuthPersonaLoginURL", persona_server_login_url,
