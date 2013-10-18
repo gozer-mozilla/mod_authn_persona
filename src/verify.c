@@ -158,6 +158,11 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
       json_tokener_free(tok);
       return res;
     }
+    
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                  ERRTAG
+                  "Assertion (parsed) recieved is : %s",
+                  json_object_to_json_string(jobj));
   }
   else {
     // XXX: verifyAssertionRemote should return specific error message.
@@ -169,6 +174,9 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
   
   struct json_object_iterator it = json_object_iter_begin(jobj);
   struct json_object_iterator itEnd = json_object_iter_end(jobj);
+  const char *reason = NULL;
+  const char *status = "unknown";
+  int success = 0;
 
   while (!json_object_iter_equal(&it, &itEnd)) {
     const char *key = json_object_iter_peek_name(&it);
@@ -181,10 +189,13 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
     } else if (strcmp("audience", key)==0) {
 	res->audience = apr_pstrdup(r->pool, json_object_get_string(val));
     } else if (strcmp("expires", key)==0) {
-	 apr_time_ansi_put(&res->expires, json_object_get_int64(val));
+	apr_time_ansi_put(&res->expires, json_object_get_int64(val));
+    } else if (strcmp("reason", key)==0) {
+	reason = json_object_get_string(val);
     } else if (strcmp("status", key)==0) {
-        if (!json_object_get_boolean(val)) {
-	  res->errorResponse = apr_psprintf(r->pool, "Assertion status was %s",  json_object_to_json_string(val));
+	status = json_object_get_string(val);
+        if (strcmp("okay", status)==0) {
+	  success=1;
 	}
     }
     json_object_iter_next(&it);
@@ -199,14 +210,21 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
   if (!res->identityIssuer) {
     res->errorResponse = apr_pstrdup(r->pool, "Missing issuer in assertion");
   }
-  if (strcmp(res->audience, r->server->server_hostname) !=0 ) {
+  if (res->audience && strcmp(res->audience, r->server->server_hostname) !=0 ) {
     res->errorResponse = apr_psprintf(r->pool, "Audience %s doesn't match %s", res->audience, r->server->server_hostname);
   }
-  
-  if (res->expires <= apr_time_now()) {
+  if (res->expires && res->expires <= apr_time_now()) {
     char exp_time[APR_RFC822_DATE_LEN];
     apr_rfc822_date(exp_time, res->expires);
     res->errorResponse = apr_psprintf(r->pool, "Assertion expired on %s", exp_time); 
+  }
+  if (!success) {
+    if(reason) {
+      res->errorResponse = apr_pstrdup(r->pool, reason);
+    }
+    else {
+      res->errorResponse = apr_psprintf(r->pool, "Assertion failed with status '%s'", status);
+    }
   }
  
   return res;
