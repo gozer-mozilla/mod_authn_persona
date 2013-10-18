@@ -1,5 +1,6 @@
 0.0.4 
  * Added AuthPersonaCookieDuration for cookie expiration
+ * Cookie now contains unforgable expiry time
 0.0.3 17-Oct-2013
  * Replace yajl by json-c 
  * Added AuthPersonaLoginURL for configurable login location

@@ -4,7 +4,7 @@ AuthPersonaCookieName   Test-Persona
 AuthPersonaServerSecret Test123
 AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
 AuthPersonaLoginURL	/login.shtml
-AuthPersonaCookieDuration 15
+AuthPersonaCookieDuration 300
 
 <Location />
    <IfModule mod_include.c>

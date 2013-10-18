@@ -42,13 +42,13 @@
 /** Generates a HMAC with the given inputs, returning a Base64-encoded
  * signature value. */
 static char *generateHMAC(request_rec *r, const buffer_t *secret,
-                          const char *userAddress, const char *issuer)
+                          const char *userAddress, const char *issuer, const char *expires)
 {
   char *data;
   unsigned char digest[HMAC_DIGESTSIZE];
   char *digest64;
 
-  data = apr_pstrcat(r->pool, userAddress, issuer, NULL);
+  data = apr_pstrcat(r->pool, userAddress, issuer, expires, NULL);
   hmac(secret->data, secret->len, data, strlen(data), &digest);
   digest64 = apr_palloc(r->pool, apr_base64_encode_len(HMAC_DIGESTSIZE));
   apr_base64_encode(digest64, (char *) digest, HMAC_DIGESTSIZE);
@@ -108,6 +108,7 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
 
   /* split at | */
   char *iss = NULL;
+  char *exp = NULL;
   char *sig = NULL;
   char *addr = apr_strtok((char *) szCookieValue, "|", &iss);
   if (!addr) {
@@ -122,14 +123,35 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
                   ERRTAG "malformed Persona cookie, can't extract issuer");
     return NULL;
   }
+  
+  exp = apr_strtok((char *) exp, "|", &sig);
+  if (!exp) {
+    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
+                  ERRTAG "malformed Persona cookie, can't extract expiry");
+    return NULL;
+  }
 
-  char *digest64 = generateHMAC(r, secret, addr, iss);
+  char *digest64 = generateHMAC(r, secret, addr, iss, exp);
 
   /* paranoia indicates that we should use a time-invariant compare here */
   if (strcmp(digest64, sig)) {
     ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
                   ERRTAG "invalid Persona cookie");
     return NULL;
+  }
+  
+  // Verify the cookie is still valid
+  apr_time_t expiry;
+  apr_time_ansi_put(&expiry, atol(exp));
+  if (expiry > 0) {
+    apr_time_t now = apr_time_now();
+    if (now >= expiry) {
+      char when[APR_RFC822_DATE_LEN];
+      apr_rfc822_date(when, expiry);
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                  ERRTAG "Persona cookie expired on %s", when);
+      return NULL;
+    }
   }
 
   Cookie c = apr_pcalloc(r->pool, sizeof(struct _Cookie));
@@ -142,20 +164,27 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
 void sendSignedCookie(request_rec *r, const buffer_t *secret,
                       const char *cookie_name, const Cookie cookie)
 {
-  char *digest64 =
-    generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer);
-    
-  char *path = "Path=/;";
-  char *expires = "";
-  
+  apr_time_t duration;
+  char *path = "Path=/;"; //XXX: should Configurable
+  char *max_age = "";
+  char *expiry = "0";
+
   if(cookie->expires > 0) {
-    expires =  apr_pstrcat(r->pool, " Max-Age=", apr_itoa(r->pool, cookie->expires), ";", NULL);
+    apr_time_ansi_put(&duration, cookie->expires);
+    duration += apr_time_now();
+
+    max_age = apr_pstrcat(r->pool, " Max-Age=", apr_itoa(r->pool, cookie->expires), ";", NULL);
+    expiry = apr_psprintf(r->pool, "%" APR_TIME_T_FMT, apr_time_sec(duration));
   }
+  
+  char *digest64 =
+     generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer, expiry);
     
-  //HttpOnly; Secure; Version=1
-  char *cookie_buf = apr_psprintf(r->pool, "%s=%s|%s|%s; HttpOnly; Version=1; %s%s",
+  //XXX: Needs to be configurable somewhat HttpOnly; Secure; Version=1
+  //XXX: Needs to be configurable, cookiedomain
+  char *cookie_buf = apr_psprintf(r->pool, "%s=%s|%s|%s|%s; HttpOnly; Version=1; %s%s",
                              cookie_name, cookie->verifiedEmail,
-                             cookie->identityIssuer, digest64, path, expires);
+                             cookie->identityIssuer, expiry, digest64, path, max_age);
 
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
