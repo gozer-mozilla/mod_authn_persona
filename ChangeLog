@@ -1,0 +1,7 @@
+0.0.4 
+ *
+0.0.3 17-Oct-2013
+ * Replace yajl by json-c 
+ * Added AuthPersonaLoginURL for configurable login location
+0.0.2 15-Oct-2013
+ * Initial release
