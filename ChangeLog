@@ -1,5 +1,6 @@
 0.0.5
- * Added AuthpersonaCookieDomain for setting cookie domain
+ * Added AuthPersonaCookieSecure for setting cookie https-only flag
+ * Added AuthPersonaCookieDomain for setting cookie domain
 0.0.4 18-Oct-2013
  * Added AuthPersonaCookieDuration for cookie expiration
  * Cookie now contains unforgable expiry time

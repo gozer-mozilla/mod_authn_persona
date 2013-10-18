@@ -31,6 +31,7 @@ typedef struct persona_config
   char *login_url;
   char *cookie_name;
   char *cookie_domain;
+  int cookie_secure;
   char *assertion_header;
 } persona_config_t;
 

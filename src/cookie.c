@@ -170,6 +170,7 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   char *max_age = "";
   char *domain = "";
   char *expiry = "0";
+  char *secure;
 
   if (cookie->expires > 0) {
     apr_time_ansi_put(&duration, cookie->expires);
@@ -185,6 +186,10 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   if (cookie->domain) {
     domain = apr_pstrcat(r->pool, " Domain=", cookie->domain, ";", NULL);
   }
+  
+  if (cookie->secure) {
+    secure = " Secure;";
+  }
 
   char *digest64 =
     generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer,
@@ -193,9 +198,9 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   //XXX: Needs to be configurable somewhat HttpOnly; Secure; Version=1
   //XXX: Needs to be configurable, cookiedomain
   char *cookie_buf =
-    apr_psprintf(r->pool, "%s=%s|%s|%s|%s; HttpOnly; Version=1; %s%s%s",
+    apr_psprintf(r->pool, "%s=%s|%s|%s|%s; HttpOnly; Version=1; %s%s%s%s",
                  cookie_name, cookie->verifiedEmail,
-                 cookie->identityIssuer, expiry, digest64, path, domain, max_age);
+                 cookie->identityIssuer, expiry, digest64, path, domain, max_age, secure);
 
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
                     ERRTAG "Persona cookie payload %s", cookie_buf);
