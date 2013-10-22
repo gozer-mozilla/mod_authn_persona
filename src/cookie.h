@@ -29,8 +29,9 @@ typedef struct _Cookie
   const char *verifiedEmail;    // email that was verified
   const char *identityIssuer;   // domain that issued the identity
   const char *domain;           // cookie domain
+  const char *path;             // cookie path
   unsigned int expires;         // lifetime in seconds of the cookie
-  int secure;			// flag for cookie secure flag
+  int secure;                   // flag for cookie secure flag
 }      *Cookie;
 
 /* Look through the 'Cookie' headers for the indicated cookie; extract it
@@ -45,5 +46,8 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
 /** Create a session cookie with a given identity */
 void sendSignedCookie(request_rec *r, const buffer_t *secret,
                       const char *cookie_name, const Cookie cookie);
+/** Clears the session cookie */
+void clearCookie(request_rec *r, const buffer_t *secret,
+                 const char *cookie_name, const Cookie cookie);
 
 #endif

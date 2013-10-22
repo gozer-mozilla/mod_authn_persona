@@ -161,16 +161,30 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
   return c;
 }
 
+void clearCookie(request_rec *r, const buffer_t *secret,
+                 const char *cookie_name, const Cookie cookie)
+{
+  apr_table_set(r->err_headers_out, "Set-Cookie",
+                apr_psprintf(r->pool,
+                             "%s=; Path=%s; Expires=Thu, 01-Jan-1970 00:00:01 GMT",
+                             cookie_name, cookie->path));
+  return;
+}
+
 /** Create a session cookie with a given identity */
 void sendSignedCookie(request_rec *r, const buffer_t *secret,
                       const char *cookie_name, const Cookie cookie)
 {
   apr_time_t duration;
-  char *path = "Path=/;";       //XXX: should Configurable
+  char *path = "/";
   char *max_age = "";
   char *domain = "";
   char *expiry = "0";
-  char *secure;
+  char *secure = "";
+
+  if (cookie->path) {
+    path = apr_pstrcat(r->pool, " Path=", cookie->path, ";", NULL);
+  }
 
   if (cookie->expires > 0) {
     apr_time_ansi_put(&duration, cookie->expires);
@@ -182,11 +196,11 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
     expiry =
       apr_psprintf(r->pool, "%" APR_TIME_T_FMT, apr_time_sec(duration));
   }
-  
+
   if (cookie->domain) {
     domain = apr_pstrcat(r->pool, " Domain=", cookie->domain, ";", NULL);
   }
-  
+
   if (cookie->secure) {
     secure = " Secure;";
   }
@@ -200,10 +214,9 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   char *cookie_buf =
     apr_psprintf(r->pool, "%s=%s|%s|%s|%s; HttpOnly; Version=1; %s%s%s%s",
                  cookie_name, cookie->verifiedEmail,
-                 cookie->identityIssuer, expiry, digest64, path, domain, max_age, secure);
+                 cookie->identityIssuer, expiry, digest64, path, domain,
+                 max_age, secure);
 
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                    ERRTAG "Persona cookie payload %s", cookie_buf);
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
 }

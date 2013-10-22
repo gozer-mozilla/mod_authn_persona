@@ -85,20 +85,22 @@ static int Auth_persona_check_cookie(request_rec *r)
 
   persona_config_t *conf =
     ap_get_module_config(r->server->module_config, &authn_persona_module);
+  persona_dir_config_t *dconf =
+    ap_get_module_config(r->per_dir_config, &authn_persona_module);
 
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
   /* We take over all HTTP_UNAUTHORIZED pages */
-  ap_custom_response(r, HTTP_UNAUTHORIZED, conf->login_url);
+  ap_custom_response(r, HTTP_UNAUTHORIZED, dconf->login_url);
 
+  if (r->method_number == M_POST) {
+    assertion = apr_table_get(r->headers_in, dconf->assertion_header);
+  }
+  
   // We'll trade you a valid assertion for a session cookie!
-  // this is a programatic XHR request.
-
-  // XXX: only test for post - issue #10
-  assertion = apr_table_get(r->headers_in, conf->assertion_header);
+  // this is a programatic XHR request
   if (assertion) {
-    VerifyResult res = processAssertion(r, conf->verifier_url, assertion);
-
+    VerifyResult res = processAssertion(r, dconf->verifier_url, assertion);
     if (!res->errorResponse) {
       assert(res->verifiedEmail);
       assert(res->identityIssuer);
@@ -109,11 +111,12 @@ static int Auth_persona_check_cookie(request_rec *r)
       Cookie cookie = apr_pcalloc(r->pool, sizeof(struct _Cookie));
       cookie->verifiedEmail = res->verifiedEmail;
       cookie->identityIssuer = res->identityIssuer;
-      cookie->expires = conf->cookie_duration;
-      cookie->domain = conf->cookie_domain;
-      cookie->secure = conf->cookie_secure;
+      cookie->expires = dconf->cookie_duration;
+      cookie->domain = dconf->cookie_domain;
+      cookie->secure = dconf->cookie_secure;
+      cookie->path = dconf->location;
       // also check res->expires;
-      sendSignedCookie(r, conf->secret, conf->cookie_name, cookie);
+      sendSignedCookie(r, conf->secret, dconf->cookie_name, cookie);
       return DONE;
     }
     else {
@@ -127,16 +130,23 @@ static int Auth_persona_check_cookie(request_rec *r)
   }
 
   // if there's a valid cookie, allow the user throught
-  szCookieValue = extractCookie(r, conf->secret, conf->cookie_name);
+  szCookieValue = extractCookie(r, conf->secret, dconf->cookie_name);
 
   Cookie cookie = NULL;
-  if (szCookieValue &&
-      (cookie = validateCookie(r, conf->secret, szCookieValue))) {
-    r->user = (char *) cookie->verifiedEmail;
-    apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
-    apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP,
-                   cookie->identityIssuer);
-    return OK;
+  if (szCookieValue) {
+    if ((cookie = validateCookie(r, conf->secret, szCookieValue))) {
+      r->user = (char *) cookie->verifiedEmail;
+      apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
+      apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP,
+                     cookie->identityIssuer);
+      return OK;
+    }
+    else {                      /* cookie didn't validate */
+      /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
+      cookie = apr_pcalloc(r->pool, sizeof(*cookie));
+      cookie->path = dconf->location;
+      clearCookie(r, conf->secret, dconf->cookie_name, cookie);
+    }
   }
 
   return HTTP_UNAUTHORIZED;
@@ -162,13 +172,13 @@ static int Auth_persona_check_auth(request_rec *r)
     return DECLINED;
   }
 
-  persona_config_t *conf =
-    ap_get_module_config(r->server->module_config, &authn_persona_module);
+  persona_dir_config_t *dconf =
+    ap_get_module_config(r->per_dir_config, &authn_persona_module);
 
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
   /* We take over all HTTP_UNAUTHORIZED pages */
-  ap_custom_response(r, HTTP_UNAUTHORIZED, conf->login_url);
+  ap_custom_response(r, HTTP_UNAUTHORIZED, dconf->login_url);
 
   /* get require line */
   reqs_arr = ap_requires(r);
@@ -253,12 +263,12 @@ apr_table_t *parseArgs(request_rec *r, char *argStr)
 /* XXX: Not good, needs to verify one is logged in, otherwise, it's a free redirector */
 static int processLogout(request_rec *r)
 {
-  persona_config_t *conf =
-    ap_get_module_config(r->server->module_config, &authn_persona_module);
+  persona_dir_config_t *dconf =
+    ap_get_module_config(r->per_dir_config, &authn_persona_module);
   apr_table_set(r->err_headers_out, "Set-Cookie",
                 apr_psprintf(r->pool,
                              "%s=; Path=/; Expires=Thu, 01-Jan-1970 00:00:01 GMT",
-                             conf->cookie_name));
+                             dconf->cookie_name));
 
   if (r->args) {
     if (strlen(r->args) > 16384) {
@@ -332,18 +342,34 @@ static void persona_generate_secret(apr_pool_t * p, server_rec *s,
   conf->secret->data = secret;
 }
 
+static void *persona_create_dir_config(apr_pool_t * p, char *path)
+{
+  persona_dir_config_t *dconf = apr_palloc(p, sizeof(*dconf));
+  dconf->location = path ? apr_pstrdup(p, path) : "/";
+  dconf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
+  dconf->verifier_url_set = 0;
+  dconf->login_url = PERSONA_LOGIN_URL;
+  dconf->login_url_set = 0;
+  dconf->cookie_secure = 0;
+  dconf->cookie_secure_set = 0;
+  dconf->cookie_name = PERSONA_COOKIE_NAME;
+  dconf->cookie_name_set = 0;
+  dconf->cookie_domain = NULL;
+  dconf->cookie_domain_set = 0;
+  dconf->cookie_duration = PERSONA_COOKIE_DURATION;
+  dconf->cookie_duration_set = 0;
+  dconf->assertion_header = PERSONA_ASSERTION_HEADER;
+  dconf->assertion_header_set = 0;
+  return dconf;
+}
+
 static void *persona_create_svr_config(apr_pool_t * p, server_rec *s)
 {
   persona_config_t *conf = apr_palloc(p, sizeof(*conf));
 
   conf->secret = apr_pcalloc(p, sizeof(buffer_t));
-  conf->assertion_header = PERSONA_ASSERTION_HEADER;
-  conf->cookie_name = PERSONA_COOKIE_NAME;
-  conf->cookie_domain = NULL;
-  conf->cookie_duration = PERSONA_COOKIE_DURATION;
-  conf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
   conf->secret_size = PERSONA_SECRET_SIZE;
-  conf->login_url = PERSONA_LOGIN_URL;
+
 
   return conf;
 }
@@ -363,86 +389,107 @@ const char *persona_server_secret_option(cmd_parms *cmd, void *cfg,
 const char *persona_server_cookie_duration(cmd_parms *cmd, void *cfg,
                                            const char *arg)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->cookie_duration = atoi(arg);
+  persona_dir_config_t *dconf = cfg;
+  dconf->cookie_duration = atoi(arg);
+  dconf->cookie_duration_set = 1;
   return NULL;
 }
 
 const char *persona_server_cookie_name(cmd_parms *cmd, void *cfg,
                                        const char *arg)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->cookie_name = apr_pstrdup(cmd->pool, arg);
+  persona_dir_config_t *dconf = cfg;
+  dconf->cookie_name = apr_pstrdup(cmd->pool, arg);
+  dconf->cookie_name_set = 1;
   return NULL;
 }
 
-const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg,
-                                         int flag)
+const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg, int flag)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->cookie_secure = flag;
+  persona_dir_config_t *dconf = cfg;
+  dconf->cookie_secure = flag;
+  dconf->cookie_secure_set = 1;
   return NULL;
 }
 
 const char *persona_server_cookie_domain(cmd_parms *cmd, void *cfg,
-                                       const char *arg)
+                                         const char *arg)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->cookie_domain = apr_pstrdup(cmd->pool, arg);
+  persona_dir_config_t *dconf = cfg;
+  dconf->cookie_domain = apr_pstrdup(cmd->pool, arg);
+  dconf->cookie_domain_set = 1;
   return NULL;
 }
 
 const char *persona_server_verifier_url(cmd_parms *cmd, void *cfg,
                                         const char *arg)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->verifier_url = apr_pstrdup(cmd->pool, arg);
+  persona_dir_config_t *dconf = cfg;
+  dconf->verifier_url = apr_pstrdup(cmd->pool, arg);
+  dconf->verifier_url_set = 1;
   return NULL;
 }
 
 const char *persona_server_login_url(cmd_parms *cmd, void *cfg,
                                      const char *arg)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->login_url = apr_pstrdup(cmd->pool, arg);
+  persona_dir_config_t *dconf = cfg;
+  dconf->login_url = apr_pstrdup(cmd->pool, arg);
+  dconf->login_url_set = 1;
   return NULL;
 }
+
+/* If the current config is set, use it, otherwise, use the parent's */
+#define persona_merge_parent(name, merged, parent, child) \
+  merged->name = child->name ## _set ? child->name : parent->name
+
+static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
+                                      void *child_conf)
+{
+  persona_dir_config_t *parent = (persona_dir_config_t *) parent_conf;
+  persona_dir_config_t *child = (persona_dir_config_t *) child_conf;
+  persona_dir_config_t *merged = apr_pcalloc(p, sizeof(*merged));
+
+  /* Just use the current location */
+  merged->location = child->location;
+
+  persona_merge_parent(cookie_name, merged, parent, child);
+  persona_merge_parent(cookie_domain, merged, parent, child);
+  persona_merge_parent(cookie_duration, merged, parent, child);
+  persona_merge_parent(cookie_secure, merged, parent, child);
+  persona_merge_parent(login_url, merged, parent, child);
+  persona_merge_parent(verifier_url, merged, parent, child);
+
+  return merged;
+}
+
 
 static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaServerSecret", persona_server_secret_option,
                 NULL, RSRC_CONF, "Server secret to use for cookie signing"),
   AP_INIT_TAKE1("AuthPersonaCookieName", persona_server_cookie_name,
-                NULL, RSRC_CONF, "Name of the Persona Cookie"),
+                NULL, RSRC_CONF | OR_AUTHCFG, "Name of the Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaCookieDomain", persona_server_cookie_domain,
-                NULL, RSRC_CONF, "Domain for the Persona Cookie"),
+                NULL, RSRC_CONF | OR_AUTHCFG,
+                "Domain for the Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaCookieDuration", persona_server_cookie_duration,
-                NULL, RSRC_CONF, "Duration of the Persona Cookie"),
+                NULL, RSRC_CONF | OR_AUTHCFG,
+                "Duration of the Persona Cookie"),
   AP_INIT_FLAG("AuthPersonaCookieSecure", persona_server_cookie_secure,
-	        NULL, RSRC_CONF, "HTTPS only Persona Cookie"),
+               NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
-                NULL, RSRC_CONF, "URL to a Persona Verfier service"),
+                NULL, RSRC_CONF | OR_AUTHCFG,
+                "URL to a Persona Verfier service"),
   AP_INIT_TAKE1("AuthPersonaLoginURL", persona_server_login_url,
-                NULL, RSRC_CONF, "URL to a Persona login page"),
+                NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona login page"),
   {NULL}
 };
 
 /* apache module structure */
 module AP_MODULE_DECLARE_DATA authn_persona_module = {
   STANDARD20_MODULE_STUFF,
-  NULL,                         /* dir config creator */
-  NULL,                         /* dir merger --- default is to override */
+  persona_create_dir_config,    /* dir config creator */
+  persona_merge_dir_config,     /* dir merger --- default is to override */
   persona_create_svr_config,    /* server config creator */
   NULL,                         /* merge server config */
   Auth_persona_options,         /* command apr_table_t */
