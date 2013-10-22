@@ -139,9 +139,9 @@ static int Auth_persona_check_cookie(request_rec *r)
       apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
       apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP,
                      cookie->identityIssuer);
-    return OK;
+      return OK;
     }
-    else { /* cookie didn't validate */
+    else {                      /* cookie didn't validate */
       /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
       cookie = apr_pcalloc(r->pool, sizeof(*cookie));
       cookie->path = dconf->location;
@@ -347,11 +347,17 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
   persona_dir_config_t *dconf = apr_palloc(p, sizeof(*dconf));
   dconf->location = path ? apr_pstrdup(p, path) : "/";
   dconf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
+  dconf->verifier_url_set = 0;
   dconf->login_url = PERSONA_LOGIN_URL;
+  dconf->login_url_set = 0;
   dconf->cookie_secure = 0;
+  dconf->cookie_secure_set = 0;
   dconf->cookie_name = PERSONA_COOKIE_NAME;
+  dconf->cookie_name_set = 0;
   dconf->cookie_domain = NULL;
+  dconf->cookie_domain_set = 0;
   dconf->cookie_duration = PERSONA_COOKIE_DURATION;
+  dconf->cookie_duration_set = 0;
   return dconf;
 }
 
@@ -383,6 +389,7 @@ const char *persona_server_cookie_duration(cmd_parms *cmd, void *cfg,
 {
   persona_dir_config_t *dconf = cfg;
   dconf->cookie_duration = atoi(arg);
+  dconf->cookie_duration_set = 1;
   return NULL;
 }
 
@@ -391,6 +398,7 @@ const char *persona_server_cookie_name(cmd_parms *cmd, void *cfg,
 {
   persona_dir_config_t *dconf = cfg;
   dconf->cookie_name = apr_pstrdup(cmd->pool, arg);
+  dconf->cookie_name_set = 1;
   return NULL;
 }
 
@@ -398,6 +406,7 @@ const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg, int flag)
 {
   persona_dir_config_t *dconf = cfg;
   dconf->cookie_secure = flag;
+  dconf->cookie_secure_set = 1;
   return NULL;
 }
 
@@ -406,6 +415,7 @@ const char *persona_server_cookie_domain(cmd_parms *cmd, void *cfg,
 {
   persona_dir_config_t *dconf = cfg;
   dconf->cookie_domain = apr_pstrdup(cmd->pool, arg);
+  dconf->cookie_domain_set = 1;
   return NULL;
 }
 
@@ -414,6 +424,7 @@ const char *persona_server_verifier_url(cmd_parms *cmd, void *cfg,
 {
   persona_dir_config_t *dconf = cfg;
   dconf->verifier_url = apr_pstrdup(cmd->pool, arg);
+  dconf->verifier_url_set = 1;
   return NULL;
 }
 
@@ -422,8 +433,34 @@ const char *persona_server_login_url(cmd_parms *cmd, void *cfg,
 {
   persona_dir_config_t *dconf = cfg;
   dconf->login_url = apr_pstrdup(cmd->pool, arg);
+  dconf->login_url_set = 1;
   return NULL;
 }
+
+/* If the current config is set, use it, otherwise, use the parent's */
+#define persona_merge_parent(name, merged, parent, child) \
+  merged->name = child->name ## _set ? child->name : parent->name
+
+static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
+                                      void *child_conf)
+{
+  persona_dir_config_t *parent = (persona_dir_config_t *) parent_conf;
+  persona_dir_config_t *child = (persona_dir_config_t *) child_conf;
+  persona_dir_config_t *merged = apr_pcalloc(p, sizeof(*merged));
+
+  /* Just use the current location */
+  merged->location = child->location;
+
+  persona_merge_parent(cookie_name, merged, parent, child);
+  persona_merge_parent(cookie_domain, merged, parent, child);
+  persona_merge_parent(cookie_duration, merged, parent, child);
+  persona_merge_parent(cookie_secure, merged, parent, child);
+  persona_merge_parent(login_url, merged, parent, child);
+  persona_merge_parent(verifier_url, merged, parent, child);
+
+  return merged;
+}
+
 
 static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaServerSecret", persona_server_secret_option,
@@ -450,7 +487,7 @@ static const command_rec Auth_persona_options[] = {
 module AP_MODULE_DECLARE_DATA authn_persona_module = {
   STANDARD20_MODULE_STUFF,
   persona_create_dir_config,    /* dir config creator */
-  NULL,                         /* dir merger --- default is to override */
+  persona_merge_dir_config,     /* dir merger --- default is to override */
   persona_create_svr_config,    /* server config creator */
   NULL,                         /* merge server config */
   Auth_persona_options,         /* command apr_table_t */

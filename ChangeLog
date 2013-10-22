@@ -1,4 +1,5 @@
 0.0.6
+ * Fix per-directory configuration merging
  * Clear invalid/expired cookies
  * Moved AuthPersonaCookieSecure to per-directory configuration
  * Moved AuthPersonaCookieDomain to per-directory configuration

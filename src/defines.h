@@ -26,11 +26,17 @@ typedef struct persona_dir_config
 {
   char *location;
   char *verifier_url;
+  int verifier_url_set;
   char *login_url;
+  int login_url_set;
   char *cookie_name;
+  int cookie_name_set;
   char *cookie_domain;
+  int cookie_domain_set;
   unsigned int cookie_duration;
+  int cookie_duration_set;
   int cookie_secure;
+  int cookie_secure_set;
 } persona_dir_config_t;
 
 typedef struct persona_config
