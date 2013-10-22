@@ -3,6 +3,8 @@
  * Moved AuthPersonaCookieDomain to per-directory configuration
  * Moved AuthPersonaCookieName to per-directory configuration
  * Moved AuthPersonaCookieDuration to per-directory configuration
+ * Moved AuthPersonaVerifierURL to per-directory configuration
+ * Moved AuthPersonaLoginURL per-directory configuration
 0.0.5
  * Added AuthPersonaCookieSecure for setting cookie https-only flag
  * Added AuthPersonaCookieDomain for setting cookie domain

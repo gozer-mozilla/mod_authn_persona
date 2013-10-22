@@ -90,7 +90,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
   /* We take over all HTTP_UNAUTHORIZED pages */
-  ap_custom_response(r, HTTP_UNAUTHORIZED, conf->login_url);
+  ap_custom_response(r, HTTP_UNAUTHORIZED, dconf->login_url);
 
   // We'll trade you a valid assertion for a session cookie!
   // this is a programatic XHR request.
@@ -98,7 +98,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   // XXX: only test for post - issue #10
   assertion = apr_table_get(r->headers_in, conf->assertion_header);
   if (assertion) {
-    VerifyResult res = processAssertion(r, conf->verifier_url, assertion);
+    VerifyResult res = processAssertion(r, dconf->verifier_url, assertion);
 
     if (!res->errorResponse) {
       assert(res->verifiedEmail);
@@ -164,13 +164,13 @@ static int Auth_persona_check_auth(request_rec *r)
     return DECLINED;
   }
 
-  persona_config_t *conf =
-    ap_get_module_config(r->server->module_config, &authn_persona_module);
+  persona_dir_config_t *dconf =
+    ap_get_module_config(r->per_dir_config, &authn_persona_module);
 
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
   /* We take over all HTTP_UNAUTHORIZED pages */
-  ap_custom_response(r, HTTP_UNAUTHORIZED, conf->login_url);
+  ap_custom_response(r, HTTP_UNAUTHORIZED, dconf->login_url);
 
   /* get require line */
   reqs_arr = ap_requires(r);
@@ -338,6 +338,8 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
 {
   persona_dir_config_t *dconf = apr_palloc(p, sizeof(*dconf));
   dconf->location = path ? apr_pstrdup(p, path) : "/";
+  dconf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
+  dconf->login_url = PERSONA_LOGIN_URL;
   dconf->cookie_secure = 0;
   dconf->cookie_name = PERSONA_COOKIE_NAME;
   dconf->cookie_domain = NULL;
@@ -351,9 +353,7 @@ static void *persona_create_svr_config(apr_pool_t * p, server_rec *s)
 
   conf->secret = apr_pcalloc(p, sizeof(buffer_t));
   conf->assertion_header = PERSONA_ASSERTION_HEADER;
-  conf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
   conf->secret_size = PERSONA_SECRET_SIZE;
-  conf->login_url = PERSONA_LOGIN_URL;
 
   return conf;
 }
@@ -405,20 +405,16 @@ const char *persona_server_cookie_domain(cmd_parms *cmd, void *cfg,
 const char *persona_server_verifier_url(cmd_parms *cmd, void *cfg,
                                         const char *arg)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->verifier_url = apr_pstrdup(cmd->pool, arg);
+  persona_dir_config_t *dconf = cfg;
+  dconf->verifier_url = apr_pstrdup(cmd->pool, arg);
   return NULL;
 }
 
 const char *persona_server_login_url(cmd_parms *cmd, void *cfg,
                                      const char *arg)
 {
-  server_rec *s = cmd->server;
-  persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
-  conf->login_url = apr_pstrdup(cmd->pool, arg);
+  persona_dir_config_t *dconf = cfg;
+  dconf->login_url = apr_pstrdup(cmd->pool, arg);
   return NULL;
 }
 
@@ -434,9 +430,9 @@ static const command_rec Auth_persona_options[] = {
   AP_INIT_FLAG("AuthPersonaCookieSecure", persona_server_cookie_secure,
 	        NULL, RSRC_CONF|OR_AUTHCFG, "HTTPS only Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
-                NULL, RSRC_CONF, "URL to a Persona Verfier service"),
+                NULL, RSRC_CONF|OR_AUTHCFG, "URL to a Persona Verfier service"),
   AP_INIT_TAKE1("AuthPersonaLoginURL", persona_server_login_url,
-                NULL, RSRC_CONF, "URL to a Persona login page"),
+                NULL, RSRC_CONF|OR_AUTHCFG, "URL to a Persona login page"),
   {NULL}
 };
 
