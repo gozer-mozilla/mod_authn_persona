@@ -166,11 +166,15 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
                       const char *cookie_name, const Cookie cookie)
 {
   apr_time_t duration;
-  char *path = "Path=/;";       //XXX: should Configurable
+  char *path = "/";
   char *max_age = "";
   char *domain = "";
   char *expiry = "0";
-  char *secure;
+  char *secure = "";
+
+  if (cookie->path) {
+    path = apr_pstrcat(r->pool, " Path=", cookie->path, ";", NULL);
+  }
 
   if (cookie->expires > 0) {
     apr_time_ansi_put(&duration, cookie->expires);
@@ -186,7 +190,7 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   if (cookie->domain) {
     domain = apr_pstrcat(r->pool, " Domain=", cookie->domain, ";", NULL);
   }
-  
+
   if (cookie->secure) {
     secure = " Secure;";
   }

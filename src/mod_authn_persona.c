@@ -85,6 +85,7 @@ static int Auth_persona_check_cookie(request_rec *r)
 
   persona_config_t *conf =
     ap_get_module_config(r->server->module_config, &authn_persona_module);
+  persona_dir_config_t *dconf = ap_get_module_config(r->per_dir_config, &authn_persona_module);
 
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
@@ -112,6 +113,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       cookie->expires = conf->cookie_duration;
       cookie->domain = conf->cookie_domain;
       cookie->secure = conf->cookie_secure;
+      cookie->path = dconf->location;
       // also check res->expires;
       sendSignedCookie(r, conf->secret, conf->cookie_name, cookie);
       return DONE;
@@ -332,6 +334,13 @@ static void persona_generate_secret(apr_pool_t * p, server_rec *s,
   conf->secret->data = secret;
 }
 
+static void *persona_create_dir_config(apr_pool_t * p, char *path)
+{
+  persona_dir_config_t *conf = apr_palloc(p, sizeof(*conf));
+  conf->location = path ? apr_pstrdup(p, path) : "/";
+  return conf;
+}
+
 static void *persona_create_svr_config(apr_pool_t * p, server_rec *s)
 {
   persona_config_t *conf = apr_palloc(p, sizeof(*conf));
@@ -340,6 +349,7 @@ static void *persona_create_svr_config(apr_pool_t * p, server_rec *s)
   conf->assertion_header = PERSONA_ASSERTION_HEADER;
   conf->cookie_name = PERSONA_COOKIE_NAME;
   conf->cookie_domain = NULL;
+  conf->cookie_secure = 0;
   conf->cookie_duration = PERSONA_COOKIE_DURATION;
   conf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
   conf->secret_size = PERSONA_SECRET_SIZE;
@@ -441,7 +451,7 @@ static const command_rec Auth_persona_options[] = {
 /* apache module structure */
 module AP_MODULE_DECLARE_DATA authn_persona_module = {
   STANDARD20_MODULE_STUFF,
-  NULL,                         /* dir config creator */
+  persona_create_dir_config,    /* dir config creator */
   NULL,                         /* dir merger --- default is to override */
   persona_create_svr_config,    /* server config creator */
   NULL,                         /* merge server config */

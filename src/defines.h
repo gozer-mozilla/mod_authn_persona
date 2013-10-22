@@ -22,6 +22,11 @@ typedef struct buffer
   char *data;
 } buffer_t;
 
+typedef struct persona_dir_config
+{
+  char *location;
+} persona_dir_config_t;
+
 typedef struct persona_config
 {
   buffer_t *secret;

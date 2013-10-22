@@ -29,6 +29,7 @@ typedef struct _Cookie
   const char *verifiedEmail;    // email that was verified
   const char *identityIssuer;   // domain that issued the identity
   const char *domain;           // cookie domain
+  const char *path;             // cookie path
   unsigned int expires;         // lifetime in seconds of the cookie
   int secure;			// flag for cookie secure flag
 }      *Cookie;
