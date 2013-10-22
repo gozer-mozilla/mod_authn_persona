@@ -3,7 +3,6 @@
  - Rename ServerSecret to SessionSecret
  - Cookie
    - Needs versionning for format changes (or just invalid and expect to re-issue?)
-   - Cookie path needs to be based on current location
  - Server configuration
    - needs merging
    - move most configuration to per-location, not per-server
