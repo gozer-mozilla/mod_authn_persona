@@ -1,3 +1,5 @@
+0.0.7
+
 0.0.6 22-Oct-2013
  * Fix per-directory configuration merging
  * Clear invalid/expired cookies
