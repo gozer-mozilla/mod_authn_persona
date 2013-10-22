@@ -59,6 +59,7 @@ const char *persona_server_cookie_name(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_domain(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_duration(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_secure(cmd_parms *, void *, int);
+const char *persona_authoritative(cmd_parms *, void *, int);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
 static void persona_generate_secret(apr_pool_t *, server_rec *,
@@ -412,6 +413,14 @@ const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg, int flag)
   return NULL;
 }
 
+const char *persona_authoritative(cmd_parms *cmd, void *cfg, int flag)
+{
+  persona_dir_config_t *dconf = cfg;
+  dconf->authoritative = flag;
+  dconf->authoritative_set = 1;
+  return NULL;
+}
+
 const char *persona_server_cookie_domain(cmd_parms *cmd, void *cfg,
                                          const char *arg)
 {
@@ -457,6 +466,7 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   persona_merge_parent(cookie_domain, merged, parent, child);
   persona_merge_parent(cookie_duration, merged, parent, child);
   persona_merge_parent(cookie_secure, merged, parent, child);
+  persona_merge_parent(authoritative, merged, parent, child);
   persona_merge_parent(login_url, merged, parent, child);
   persona_merge_parent(verifier_url, merged, parent, child);
 
@@ -476,6 +486,8 @@ static const command_rec Auth_persona_options[] = {
                 NULL, RSRC_CONF | OR_AUTHCFG,
                 "Duration of the Persona Cookie"),
   AP_INIT_FLAG("AuthPersonaCookieSecure", persona_server_cookie_secure,
+               NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
+  AP_INIT_FLAG("AuthPersonaAuthoritative", persona_authoritative,
                NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
                 NULL, RSRC_CONF | OR_AUTHCFG,

@@ -39,6 +39,8 @@ typedef struct persona_dir_config
   int cookie_secure_set;
   char *assertion_header;
   int assertion_header_set;
+  int authoritative;
+  int authoritative_set;
 } persona_dir_config_t;
 
 typedef struct persona_config
