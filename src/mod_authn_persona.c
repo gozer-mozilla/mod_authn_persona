@@ -92,15 +92,15 @@ static int Auth_persona_check_cookie(request_rec *r)
 
   /* We take over all HTTP_UNAUTHORIZED pages */
   ap_custom_response(r, HTTP_UNAUTHORIZED, dconf->login_url);
-
+.
+  if (r->method_numer == M_POST) {
+    assertion = apr_table_get(r->headers_in, dconf->assertion_header);
+  }
+  
   // We'll trade you a valid assertion for a session cookie!
-  // this is a programatic XHR request.
-
-  // XXX: only test for post - issue #10
-  assertion = apr_table_get(r->headers_in, dconf->assertion_header);
+  // this is a programatic XHR request
   if (assertion) {
     VerifyResult res = processAssertion(r, dconf->verifier_url, assertion);
-
     if (!res->errorResponse) {
       assert(res->verifiedEmail);
       assert(res->identityIssuer);
