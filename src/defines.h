@@ -37,13 +37,14 @@ typedef struct persona_dir_config
   int cookie_duration_set;
   int cookie_secure;
   int cookie_secure_set;
+  char *assertion_header;
+  int assertion_header_set;
 } persona_dir_config_t;
 
 typedef struct persona_config
 {
   buffer_t *secret;
   unsigned int secret_size;
-  char *assertion_header;
 } persona_config_t;
 
 #endif

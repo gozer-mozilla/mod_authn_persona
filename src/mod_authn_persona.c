@@ -97,7 +97,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   // this is a programatic XHR request.
 
   // XXX: only test for post - issue #10
-  assertion = apr_table_get(r->headers_in, conf->assertion_header);
+  assertion = apr_table_get(r->headers_in, dconf->assertion_header);
   if (assertion) {
     VerifyResult res = processAssertion(r, dconf->verifier_url, assertion);
 
@@ -358,6 +358,8 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
   dconf->cookie_domain_set = 0;
   dconf->cookie_duration = PERSONA_COOKIE_DURATION;
   dconf->cookie_duration_set = 0;
+  dconf->assertion_header = PERSONA_ASSERTION_HEADER;
+  dconf->assertion_header_set = 0;
   return dconf;
 }
 
@@ -367,7 +369,7 @@ static void *persona_create_svr_config(apr_pool_t * p, server_rec *s)
 
   conf->secret = apr_pcalloc(p, sizeof(buffer_t));
   conf->secret_size = PERSONA_SECRET_SIZE;
-  conf->assertion_header = PERSONA_ASSERTION_HEADER;
+
 
   return conf;
 }
