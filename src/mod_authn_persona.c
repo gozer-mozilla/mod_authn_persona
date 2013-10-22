@@ -133,13 +133,20 @@ static int Auth_persona_check_cookie(request_rec *r)
   szCookieValue = extractCookie(r, conf->secret, dconf->cookie_name);
 
   Cookie cookie = NULL;
-  if (szCookieValue &&
-      (cookie = validateCookie(r, conf->secret, szCookieValue))) {
-    r->user = (char *) cookie->verifiedEmail;
-    apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
-    apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP,
-                   cookie->identityIssuer);
+  if (szCookieValue) {
+    if ((cookie = validateCookie(r, conf->secret, szCookieValue))) {
+      r->user = (char *) cookie->verifiedEmail;
+      apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
+      apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP,
+                     cookie->identityIssuer);
     return OK;
+    }
+    else { /* cookie didn't validate */
+      /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
+      cookie = apr_pcalloc(r->pool, sizeof(*cookie));
+      cookie->path = dconf->location;
+      clearCookie(r, conf->secret, dconf->cookie_name, cookie);
+    }
   }
 
   return HTTP_UNAUTHORIZED;
