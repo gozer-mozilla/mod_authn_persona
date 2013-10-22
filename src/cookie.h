@@ -31,7 +31,7 @@ typedef struct _Cookie
   const char *domain;           // cookie domain
   const char *path;             // cookie path
   unsigned int expires;         // lifetime in seconds of the cookie
-  int secure;			// flag for cookie secure flag
+  int secure;                   // flag for cookie secure flag
 }      *Cookie;
 
 /* Look through the 'Cookie' headers for the indicated cookie; extract it

@@ -85,7 +85,8 @@ static int Auth_persona_check_cookie(request_rec *r)
 
   persona_config_t *conf =
     ap_get_module_config(r->server->module_config, &authn_persona_module);
-  persona_dir_config_t *dconf = ap_get_module_config(r->per_dir_config, &authn_persona_module);
+  persona_dir_config_t *dconf =
+    ap_get_module_config(r->per_dir_config, &authn_persona_module);
 
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
@@ -352,8 +353,8 @@ static void *persona_create_svr_config(apr_pool_t * p, server_rec *s)
   persona_config_t *conf = apr_palloc(p, sizeof(*conf));
 
   conf->secret = apr_pcalloc(p, sizeof(buffer_t));
-  conf->assertion_header = PERSONA_ASSERTION_HEADER;
   conf->secret_size = PERSONA_SECRET_SIZE;
+  conf->assertion_header = PERSONA_ASSERTION_HEADER;
 
   return conf;
 }
@@ -386,8 +387,7 @@ const char *persona_server_cookie_name(cmd_parms *cmd, void *cfg,
   return NULL;
 }
 
-const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg,
-                                         int flag)
+const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg, int flag)
 {
   persona_dir_config_t *dconf = cfg;
   dconf->cookie_secure = flag;
@@ -395,7 +395,7 @@ const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg,
 }
 
 const char *persona_server_cookie_domain(cmd_parms *cmd, void *cfg,
-                                       const char *arg)
+                                         const char *arg)
 {
   persona_dir_config_t *dconf = cfg;
   dconf->cookie_domain = apr_pstrdup(cmd->pool, arg);
@@ -422,17 +422,20 @@ static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaServerSecret", persona_server_secret_option,
                 NULL, RSRC_CONF, "Server secret to use for cookie signing"),
   AP_INIT_TAKE1("AuthPersonaCookieName", persona_server_cookie_name,
-                NULL, RSRC_CONF|OR_AUTHCFG, "Name of the Persona Cookie"),
+                NULL, RSRC_CONF | OR_AUTHCFG, "Name of the Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaCookieDomain", persona_server_cookie_domain,
-                NULL, RSRC_CONF|OR_AUTHCFG, "Domain for the Persona Cookie"),
+                NULL, RSRC_CONF | OR_AUTHCFG,
+                "Domain for the Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaCookieDuration", persona_server_cookie_duration,
-                NULL, RSRC_CONF|OR_AUTHCFG, "Duration of the Persona Cookie"),
+                NULL, RSRC_CONF | OR_AUTHCFG,
+                "Duration of the Persona Cookie"),
   AP_INIT_FLAG("AuthPersonaCookieSecure", persona_server_cookie_secure,
-	        NULL, RSRC_CONF|OR_AUTHCFG, "HTTPS only Persona Cookie"),
+               NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
-                NULL, RSRC_CONF|OR_AUTHCFG, "URL to a Persona Verfier service"),
+                NULL, RSRC_CONF | OR_AUTHCFG,
+                "URL to a Persona Verfier service"),
   AP_INIT_TAKE1("AuthPersonaLoginURL", persona_server_login_url,
-                NULL, RSRC_CONF|OR_AUTHCFG, "URL to a Persona login page"),
+                NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona login page"),
   {NULL}
 };
 
