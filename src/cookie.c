@@ -207,8 +207,6 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
                  cookie->identityIssuer, expiry, digest64, path, domain,
                  max_age, secure);
 
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                ERRTAG "Persona cookie payload %s", cookie_buf);
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
 }
