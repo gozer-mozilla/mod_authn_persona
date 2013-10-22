@@ -161,6 +161,16 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
   return c;
 }
 
+void clearCookie(request_rec *r, const buffer_t *secret,
+                 const char *cookie_name, const Cookie cookie)
+{
+  apr_table_set(r->err_headers_out, "Set-Cookie",
+                apr_psprintf(r->pool,
+                             "%s=; Expires=Thu, 01-Jan-1970 00:00:01 GMT",
+                             cookie_name));
+  return;
+}
+
 /** Create a session cookie with a given identity */
 void sendSignedCookie(request_rec *r, const buffer_t *secret,
                       const char *cookie_name, const Cookie cookie)

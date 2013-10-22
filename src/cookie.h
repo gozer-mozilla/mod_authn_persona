@@ -46,5 +46,8 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
 /** Create a session cookie with a given identity */
 void sendSignedCookie(request_rec *r, const buffer_t *secret,
                       const char *cookie_name, const Cookie cookie);
+/** Clears the session cookie */
+void clearCookie(request_rec *r, const buffer_t *secret,
+                 const char *cookie_name, const Cookie cookie);
 
 #endif
