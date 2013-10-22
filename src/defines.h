@@ -25,6 +25,9 @@ typedef struct buffer
 typedef struct persona_dir_config
 {
   char *location;
+  char *cookie_name;
+  char *cookie_domain;
+  unsigned int cookie_duration;
   int cookie_secure;
 } persona_dir_config_t;
 
@@ -32,11 +35,8 @@ typedef struct persona_config
 {
   buffer_t *secret;
   unsigned int secret_size;
-  unsigned int cookie_duration;
   char *verifier_url;
   char *login_url;
-  char *cookie_name;
-  char *cookie_domain;
   char *assertion_header;
 } persona_config_t;
 

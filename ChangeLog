@@ -1,5 +1,8 @@
 0.0.6
  * Moved AuthPersonaCookieSecure to per-directory configuration
+ * Moved AuthPersonaCookieDomain to per-directory configuration
+ * Moved AuthPersonaCookieName to per-directory configuration
+ * Moved AuthPersonaCookieDuration to per-directory configuration
 0.0.5
  * Added AuthPersonaCookieSecure for setting cookie https-only flag
  * Added AuthPersonaCookieDomain for setting cookie domain
