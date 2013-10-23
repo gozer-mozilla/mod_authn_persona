@@ -480,6 +480,7 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   persona_merge_parent(authoritative, merged, parent, child);
   persona_merge_parent(login_url, merged, parent, child);
   persona_merge_parent(verifier_url, merged, parent, child);
+  persona_merge_parent(assertion_header, merged, parent, child);
 
   return merged;
 }
