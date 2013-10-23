@@ -1,20 +1,24 @@
+%define _lib lib64
+
 Name:           @PACKAGE@
 Version:        @VERSION@
 Release:        1%{?dist}
-Summary:        Browser-ID authenticator
+Summary:        Mozilla Persona Apache module
 
 Group:          System Environment/Daemons
-License:        Apache 2.0
+License:        ASL 2.0
 URL:            https://github.com/mozilla/@PACKAGE@
-Packager:	Philippe M. Chiasson <gozer@ectoplasm.org>
-Source:         %{name}-%{version}.tar.gz
+Packager:       Philippe M. Chiasson <gozer@ectoplasm.org>
+Source:         https://people.mozilla.org/~pchiasson/dist/%{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  httpd-devel, pkgconfig, perl(Apache::Test), json-c-devel
 Requires:       httpd, json-c
 
 %description
+This modules allows for Apache to authenticate users against Mozilla's Persona.
 
+For more information : http://www.persona.org/
 
 %prep
 %setup -q
@@ -68,3 +72,5 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 
 %changelog
+* Wed Oct 23 2013 Philippe M. Chiasson <gozer@ectoplasm.org
+- Initial SPEC file
