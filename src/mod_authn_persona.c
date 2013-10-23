@@ -97,7 +97,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   if (r->method_number == M_POST) {
     assertion = apr_table_get(r->headers_in, dconf->assertion_header);
   }
-  
+
   // We'll trade you a valid assertion for a session cookie!
   // this is a programatic XHR request
   if (assertion) {
@@ -119,7 +119,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       cookie->path = dconf->location;
 
       sendSignedCookie(r, conf->secret, dconf->cookie_name, cookie);
-      
+
       /* XXX: At this point, we have authenticated the user, but we bail out too soon
        * XXX: from the processing. For this request completion, there is no r->user
        */
@@ -156,7 +156,8 @@ static int Auth_persona_check_cookie(request_rec *r)
 
   if (dconf->authoritative) {
     return HTTP_UNAUTHORIZED;
-  } else {
+  }
+  else {
     return DECLINED;
   }
 }
