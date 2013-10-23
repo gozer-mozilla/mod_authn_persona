@@ -123,8 +123,9 @@ static int Auth_persona_check_cookie(request_rec *r)
 
       /* XXX: At this point, we have authenticated the user, but we bail out too soon
        * XXX: from the processing. For this request completion, there is no r->user
+       * XXX: However, this is the XHR request, so bail out before sending content out
        */
-      return OK;
+      return DONE;
     }
     else {
       ap_set_content_type(r, "application/json");
