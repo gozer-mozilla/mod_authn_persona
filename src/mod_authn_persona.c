@@ -93,7 +93,7 @@ static int Auth_persona_check_cookie(request_rec *r)
 
   /* We take over all HTTP_UNAUTHORIZED pages */
   ap_custom_response(r, HTTP_UNAUTHORIZED, dconf->login_url);
-  
+
   /* Assertions should only appear on POST requests */
   if (r->method_number == M_POST) {
     assertion = apr_table_get(r->headers_in, dconf->assertion_header);
@@ -274,13 +274,13 @@ apr_table_t *parseArgs(request_rec *r, char *argStr)
 /* XXX: Not good, needs to verify one is logged in, otherwise, it's a free redirector */
 static int processLogout(request_rec *r)
 {
-  persona_config_t *conf = 
+  persona_config_t *conf =
     ap_get_module_config(r->server->module_config, &authn_persona_module);
   persona_dir_config_t *dconf =
     ap_get_module_config(r->per_dir_config, &authn_persona_module);
-  
+
   clearCookie(r, conf->secret, dconf->cookie_name, NULL);
-  
+
   if (r->args) {
     if (strlen(r->args) > 16384) {
       return HTTP_REQUEST_URI_TOO_LARGE;
