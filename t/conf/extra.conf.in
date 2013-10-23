@@ -17,7 +17,6 @@ AuthPersonaAuthoritative On
 </Location>
 
 Alias /auth @documentroot@
-AuthPersonaCookieSecure On
 <Location /auth>
   AuthPersonaCookieSecure Off
   Authname "Persona Login"
