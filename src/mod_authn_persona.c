@@ -93,7 +93,8 @@ static int Auth_persona_check_cookie(request_rec *r)
 
   /* We take over all HTTP_UNAUTHORIZED pages */
   ap_custom_response(r, HTTP_UNAUTHORIZED, dconf->login_url);
-
+  
+  /* Assertions should only appear on POST requests */
   if (r->method_number == M_POST) {
     assertion = apr_table_get(r->headers_in, dconf->assertion_header);
   }
