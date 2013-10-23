@@ -227,7 +227,6 @@ static int Auth_persona_check_auth(request_rec *r)
                                    r->user, reqIdp,
                                    (issuer ? issuer : "unknown"));
         apr_table_setn(r->subprocess_env, "PERSONA_ERROR", error);
-
         return DECLINED;
       }
 
@@ -275,13 +274,13 @@ apr_table_t *parseArgs(request_rec *r, char *argStr)
 /* XXX: Not good, needs to verify one is logged in, otherwise, it's a free redirector */
 static int processLogout(request_rec *r)
 {
+  persona_config_t *conf = 
+    ap_get_module_config(r->server->module_config, &authn_persona_module);
   persona_dir_config_t *dconf =
     ap_get_module_config(r->per_dir_config, &authn_persona_module);
-  apr_table_set(r->err_headers_out, "Set-Cookie",
-                apr_psprintf(r->pool,
-                             "%s=; Path=/; Expires=Thu, 01-Jan-1970 00:00:01 GMT",
-                             dconf->cookie_name));
-
+  
+  clearCookie(r, conf->secret, dconf->cookie_name, NULL);
+  
   if (r->args) {
     if (strlen(r->args) > 16384) {
       return HTTP_REQUEST_URI_TOO_LARGE;
