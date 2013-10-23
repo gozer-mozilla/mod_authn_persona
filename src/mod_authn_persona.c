@@ -109,6 +109,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
                     "email '%s' verified, vouched for by issuer '%s'",
                     res->verifiedEmail, res->identityIssuer);
+
       Cookie cookie = apr_pcalloc(r->pool, sizeof(struct _Cookie));
       cookie->verifiedEmail = res->verifiedEmail;
       cookie->identityIssuer = res->identityIssuer;
@@ -116,17 +117,20 @@ static int Auth_persona_check_cookie(request_rec *r)
       cookie->domain = dconf->cookie_domain;
       cookie->secure = dconf->cookie_secure;
       cookie->path = dconf->location;
-      // also check res->expires;
+
       sendSignedCookie(r, conf->secret, dconf->cookie_name, cookie);
-      return DONE;
+      
+      /* XXX: At this point, we have authenticated the user, but we bail out too soon
+       * XXX: from the processing. For this request completion, there is no r->user
+       */
+      return OK;
     }
     else {
-      r->status = HTTP_INTERNAL_SERVER_ERROR;
       ap_set_content_type(r, "application/json");
       ap_rwrite(res->errorResponse, strlen(res->errorResponse), r);
 
       // upon assertion verification failure we return JSON explaining why
-      return DONE;
+      return HTTP_INTERNAL_SERVER_ERROR;
     }
   }
 
@@ -150,7 +154,11 @@ static int Auth_persona_check_cookie(request_rec *r)
     }
   }
 
-  return HTTP_UNAUTHORIZED;
+  if (dconf->authoritative) {
+    return HTTP_UNAUTHORIZED;
+  } else {
+    return DECLINED;
+  }
 }
 
 
@@ -353,6 +361,8 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
   dconf->login_url_set = 0;
   dconf->cookie_secure = 0;
   dconf->cookie_secure_set = 0;
+  dconf->authoritative = 1;
+  dconf->authoritative_set = 0;
   dconf->cookie_name = PERSONA_COOKIE_NAME;
   dconf->cookie_name_set = 0;
   dconf->cookie_domain = NULL;

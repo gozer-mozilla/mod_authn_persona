@@ -6,7 +6,6 @@
  - Server configuration
    - needs merging
    - move most configuration to per-location, not per-server
- - Need an AuthPersonaAuthoritative directive
  - Logout handler not really implemented yet
    - Needs to verify someone is already logged-in, otherwise, free redirector
 
