@@ -310,7 +310,7 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
     if (!conf->secret->len) {
       persona_generate_secret(pconf, sp, conf);
       ap_log_error(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, sp,
-                   ERRTAG "created a secret since none was configured for %s (%s)",
+                   ERRTAG "created a secret since none was configured for %s (AuthPersonaServerSecret %s)",
                    sp->server_hostname, conf->secret->data);
     }
   }
@@ -485,7 +485,23 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   return merged;
 }
 
-
+static void *persona_merge_svr_config(apr_pool_t * p, void *parent_conf,
+                                      void *child_conf)
+{
+  persona_config_t *parent = (persona_config_t *) parent_conf;
+  persona_config_t *child = (persona_config_t *) child_conf;
+  persona_config_t *merged = apr_pcalloc(p, sizeof(*merged));
+  
+  if (child->secret->len) {
+    merged->secret_size = child->secret_size;
+    merged->secret = child->secret;
+  } else {
+    merged->secret_size = parent->secret_size;
+    merged->secret = parent->secret;
+  }
+ 
+  return merged;
+}
 static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaServerSecret", persona_server_secret_option,
                 NULL, RSRC_CONF, "Server secret to use for cookie signing"),
@@ -515,7 +531,7 @@ module AP_MODULE_DECLARE_DATA authn_persona_module = {
   persona_create_dir_config,    /* dir config creator */
   persona_merge_dir_config,     /* dir merger --- default is to override */
   persona_create_svr_config,    /* server config creator */
-  NULL,                         /* merge server config */
+  persona_merge_svr_config,     /* merge server config */
   Auth_persona_options,         /* command apr_table_t */
   register_hooks                /* register hooks */
 };
