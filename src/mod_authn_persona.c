@@ -67,7 +67,7 @@ static void persona_generate_secret(apr_pool_t *, server_rec *,
 
 static int persona_authn_active(request_rec *r)
 {
-  return (strncmp("Persona", ap_auth_type(r), 9) == 0) ? 1 : 0;
+  return (strcmp("Persona", ap_auth_type(r)) == 0) ? 1 : 0;
 }
 
 /**************************************************
