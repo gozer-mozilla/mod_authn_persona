@@ -62,7 +62,7 @@ const char *persona_server_cookie_secure(cmd_parms *, void *, int);
 const char *persona_authoritative(cmd_parms *, void *, int);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
-static void persona_generate_secret(apr_pool_t *, server_rec *,
+static apr_status_t persona_generate_secret(apr_pool_t *, server_rec *,
                                     persona_config_t *);
 
 static int persona_authn_active(request_rec *r)
@@ -310,8 +310,8 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
     if (!conf->secret->len) {
       persona_generate_secret(pconf, sp, conf);
       ap_log_error(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, sp,
-                   ERRTAG "created a secret since none was configured for %s",
-                   sp->server_hostname);
+                   ERRTAG "created a secret since none was configured for %s (%s)",
+                   sp->server_hostname, conf->secret->data);
     }
   }
 
@@ -332,27 +332,24 @@ static void register_hooks(apr_pool_t * p)
   ap_hook_post_config(Auth_persona_post_config, NULL, NULL, APR_HOOK_MIDDLE);
 }
 
-#define RAND_BYTES_AT_A_TIME 256
-
-static void persona_generate_secret(apr_pool_t * p, server_rec *s,
-                                    persona_config_t * conf)
+static apr_status_t persona_generate_secret(apr_pool_t * p, server_rec *s,
+                                            persona_config_t * conf)
 {
-  apr_random_t *prng = apr_random_standard_new(p);
-  char *secret = apr_palloc(p, conf->secret_size);
+  unsigned char *secret = apr_pcalloc(p, conf->secret_size);
   apr_status_t status;
+  
+  status = apr_generate_random_bytes(secret, conf->secret_size);
 
-  while ((status =
-          apr_random_secure_bytes(prng, secret,
-                                  conf->secret_size)) ==
-         APR_ENOTENOUGHENTROPY) {
-    unsigned char randbuf[RAND_BYTES_AT_A_TIME];
-    apr_generate_random_bytes(randbuf, RAND_BYTES_AT_A_TIME);
-    apr_random_add_entropy(prng, randbuf, RAND_BYTES_AT_A_TIME);
+  if (APR_SUCCESS == status) {
+    /* Turn into printable */
+    secret = (unsigned char *) ap_pbase64encode(p, (char *)secret);
+    /* Truncate to right length */
+    secret[conf->secret_size] = 0;
+    conf->secret->data = (char *)secret;
+    conf->secret->len = conf->secret_size;
   }
 
-  /* XXX: if (status != OK) { */
-  conf->secret->len = conf->secret_size;
-  conf->secret->data = secret;
+  return status;
 }
 
 static void *persona_create_dir_config(apr_pool_t * p, char *path)
