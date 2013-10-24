@@ -209,14 +209,15 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
     generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer,
                  expiry);
 
-  //XXX: Needs to be configurable somewhat HttpOnly; Secure; Version=1
-  //XXX: Needs to be configurable, cookiedomain
   char *cookie_buf =
     apr_psprintf(r->pool, "%s=%s|%s|%s|%s; HttpOnly; Version=1; %s%s%s%s",
                  cookie_name, cookie->verifiedEmail,
                  cookie->identityIssuer, expiry, digest64, path, domain,
                  max_age, secure);
 
+  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                ERRTAG "Sending cookie payload: %s", cookie_buf); 
+    
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
 }
