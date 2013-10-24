@@ -62,12 +62,25 @@ const char *persona_server_cookie_secure(cmd_parms *, void *, int);
 const char *persona_authoritative(cmd_parms *, void *, int);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
+const char *persona_fake_basic_auth(cmd_parms *, void *, int);
 static apr_status_t persona_generate_secret(apr_pool_t *, server_rec *,
                                     persona_config_t *);
 
 static int persona_authn_active(request_rec *r)
 {
   return (strcmp("Persona", ap_auth_type(r)) == 0) ? 1 : 0;
+}
+
+static void fake_basic_auth(request_rec *r)
+{
+  char *basic = apr_pstrcat(r->pool, r->user, ":", "password", NULL);
+  apr_size_t size = (apr_size_t) strlen(basic);
+  char *base64 = apr_palloc(r->pool,
+                            apr_base64_encode_len(size + 1) * sizeof(char));
+  apr_base64_encode(base64, basic, size);
+  apr_table_setn(r->headers_in, "Authorization",
+                 apr_pstrcat(r->pool, "Basic ", base64, NULL));
+  return;
 }
 
 /**************************************************
@@ -148,6 +161,12 @@ static int Auth_persona_check_cookie(request_rec *r)
       apr_table_setn(r->notes, PERSONA_ISSUER_NOTE, cookie->identityIssuer);
       apr_table_setn(r->subprocess_env, PERSONA_ENV_IDP,
                      cookie->identityIssuer);
+
+      /* If requested, fake a Authorization: header */
+      if (dconf->fake_basic_auth) {
+	fake_basic_auth(r);
+      }
+      
       return OK;
     }
     else {                      /* cookie didn't validate */
@@ -432,6 +451,14 @@ const char *persona_authoritative(cmd_parms *cmd, void *cfg, int flag)
   return NULL;
 }
 
+const char *persona_fake_basic_auth(cmd_parms *cmd, void *cfg, int flag)
+{
+  persona_dir_config_t *dconf = cfg;
+  dconf->fake_basic_auth = flag;
+  dconf->fake_basic_auth_set = 1;
+  return NULL;
+}
+
 const char *persona_server_cookie_domain(cmd_parms *cmd, void *cfg,
                                          const char *arg)
 {
@@ -481,7 +508,8 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   persona_merge_parent(login_url, merged, parent, child);
   persona_merge_parent(verifier_url, merged, parent, child);
   persona_merge_parent(assertion_header, merged, parent, child);
-
+  persona_merge_parent(fake_basic_auth, merged, parent, child);
+  
   return merged;
 }
 
@@ -522,6 +550,8 @@ static const command_rec Auth_persona_options[] = {
                 "URL to a Persona Verfier service"),
   AP_INIT_TAKE1("AuthPersonaLoginURL", persona_server_login_url,
                 NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona login page"),
+  AP_INIT_FLAG("AuthPersonaFakeBasicAuth", persona_fake_basic_auth,
+               NULL, RSRC_CONF | OR_AUTHCFG, "Should we fake basic authentication?"),
   {NULL}
 };
 

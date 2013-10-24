@@ -106,6 +106,10 @@ Further configuration settings
 
   The location of the login page, it's never accessed directly. But it needs to be
   accessible by unauthenticated users.
+* `AuthPersonaFakeBasicAuth`: (default: Off)
+
+  When set, this will set a fake Authorization: header with the Persona userid and
+  a fake password
 
 * `Require persona-idp`:
   Only allow users with email addresses backed by the given Identity Provider.

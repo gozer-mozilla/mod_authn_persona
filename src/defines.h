@@ -41,6 +41,8 @@ typedef struct persona_dir_config
   int assertion_header_set;
   int authoritative;
   int authoritative_set;
+  int fake_basic_auth;
+  int fake_basic_auth_set;
 } persona_dir_config_t;
 
 typedef struct persona_config
