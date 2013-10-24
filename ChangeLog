@@ -1,4 +1,6 @@
-0.0.7
+0.0.8
+
+0.0.7 24-Oct-2013
  * Add AuthPersonaAuthoritative On/Off directive
 0.0.6 22-Oct-2013
  * Fix per-directory configuration merging
