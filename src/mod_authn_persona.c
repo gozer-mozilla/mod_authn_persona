@@ -133,7 +133,8 @@ static int Auth_persona_check_cookie(request_rec *r)
       apr_table_set(r->err_headers_out, "X-Persona-Error", res->errorResponse);
 
       // upon assertion verification failure we return JSON explaining why
-      return HTTP_INTERNAL_SERVER_ERROR;
+      r->status = HTTP_INTERNAL_SERVER_ERROR;
+      return DONE;
     }
   }
 
