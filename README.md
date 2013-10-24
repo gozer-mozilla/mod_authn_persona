@@ -71,12 +71,41 @@ The authentication page will then reload the desired resource.
 Further configuration settings
 ==============================
 
-* `AuthPersonaServerSecret`:
+* `AuthPersonaServerSecret`: (default: generated)
   A secret that will be used to sign cookies. Must be set in a server or
   VirtualHost context. If not provided, upon server start a secret will be
   generated automatically. Given re-authentication is automatic, it is only
   required to set a cookie secret if your application is hosted on multiple
   load-balanced Apache servers.
+
+* `AuthPersonaCookieName`: (default: Persona)
+
+  The name for the Persona Session cookie
+
+* `AuthPersonaCookieDomain`: (default: None)
+
+  The domain that the cookie is valid for, so for instance '.domain.com'
+* `AuthPersonaCookieSecure`: (default: Off)
+
+  If the cookie should be limited to SSL connections or not
+
+* `AuthPersonaCookieDuration`: (default: 1 day)
+
+  The lifetime of the session itself, after that, the user will be re-authed
+
+* `AuthPersonaAuthoritative`: (default: Off)
+
+  Wherever the module will let other modules try their luck at authenticating users
+
+* `AuthPersonaVerifierURL`: (default: https://verifier.login.persona.org/verify)
+
+  This module uses a web service to verify recieved assertions, this is the URL
+  of the service providing that service. It needs to be trusted
+
+* `AuthPersonaLoginURL`: (default: /login.shtml)
+
+  The location of the login page, it's never accessed directly. But it needs to be
+  accessible by unauthenticated users.
 
 * `Require persona-idp`:
   Only allow users with email addresses backed by the given Identity Provider.
