@@ -222,7 +222,7 @@ window.onload = function() {
         }
       });
     },
-    onlogout: function() { showError({"status": "failure", "reason": "You have been logged out"}); },
+    onlogout: function() { doLogout(); },
     onready: function() {
       if (!processingAssertion) {
         document.getElementsByTagName('body')[0].className = '';
@@ -250,7 +250,6 @@ function showError(rsp) {
 
 </script>
 <script>
-
   <!--#if expr="$REMOTE_USER" -->
   var loggedInUser = "<!--#echo var="REMOTE_USER" -->";
   <!--#elif expr="$REDIRECT_REMOTE_USER"-->
@@ -259,10 +258,16 @@ function showError(rsp) {
   var loggedInUser = undefined;
   <!--#endif -->
 
-  <!--#if expr="$REDIRECT_PERSONA_ERROR" -->
-  showError({"status": "failure", "reason": "<!--#echo var="REDIRECT_PERSONA_ERROR" -->"});
+  showError({"status": "failure", "reason": "You have been logged-out"});
   navigator.id.logout();
+
+  function doLogout() {
+  <!--#if expr="$REDIRECT_PERSONA_LOGOUT_RETURNTO" -->
+    window.location.href = "<!--#echo var="REDIRECT_PERSONA_LOGOUT_RETURNTO" -->";
+  <!--#else -->
+    window.location.href = "/";
   <!--#endif -->
+  }
 
 </script>
 </body></html>

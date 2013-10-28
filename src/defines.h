@@ -29,6 +29,8 @@ typedef struct persona_dir_config
   int verifier_url_set;
   char *login_url;
   int login_url_set;
+  char *logout_url;
+  int logout_url_set;
   char *cookie_name;
   int cookie_name_set;
   char *cookie_domain;

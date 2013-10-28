@@ -1,4 +1,5 @@
 0.0.9
+ * Add AuthPersonaLogoutURL configuration for logout handling
  * [bugfix] Persona Assertions expiry are in milliseconds
 0.0.8 24-Oct-2013
  * Add AuthPersonaFakeBasicAuth On/Off directive

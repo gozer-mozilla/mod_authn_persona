@@ -4,6 +4,5 @@
  - Cookie
    - Needs versionning for format changes (or just invalid and expect to re-issue?)
    - Move checksum to front so all can be verified *before* as much parsing as possible
- - Logout handler not really implemented yet
-   - Needs to verify someone is already logged-in, otherwise, free redirector
-
+ - Logout
+   - Configurable post-logout redirector

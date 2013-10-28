@@ -1,5 +1,6 @@
 <html><body>
 Hello world</br>
+<a href="/auth/logout.shtml">Log me out scotty!</a></br>
 
 You seem to be: <b><!--#echo var="REMOTE_USER" --></b>
 </br>

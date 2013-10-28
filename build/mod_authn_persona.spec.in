@@ -39,9 +39,21 @@ rm %{buildroot}/%{_libdir}/httpd/modules/*.la
 LoadModule authn_persona_module modules/%{name}.so
 
 Alias /login.shtml /usr/share/@PACKAGE@/login.shtml
+Alias /logout.shtml /usr/share/@PACKAGE@/logout.shtml
 
 #make sure to allow the login page
 <Location /login.shtml>
+   <IfModule mod_include.c>
+    AddType text/html .shtml
+    AddOutputFilter INCLUDES .shtml
+    Options +Includes 
+   </IfModule>
+  Satisfy Any
+  Allow from all
+</Location>
+
+#make sure to allow the logout page
+<Location /logout.shtml>
    <IfModule mod_include.c>
     AddType text/html .shtml
     AddOutputFilter INCLUDES .shtml
@@ -69,6 +81,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc README* ChangeLog
 %{_libdir}/httpd/modules/*.so
 %{_datadir}/%{name}/login.shtml
+%{_datadir}/%{name}/logout.shtml
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 
 %changelog

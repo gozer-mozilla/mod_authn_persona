@@ -20,7 +20,7 @@ BUILT_SOURCES = src/version.h
 mod_authn_persona_la_LDFLAGS = -module -avoid-version $(JSON_LIBS) $(LIBCURL)
 
 mod_authn_persona_ladir = $(datarootdir)/$(PACKAGE)
-mod_authn_persona_la_DATA = t/htdocs/login.shtml
+mod_authn_persona_la_DATA = t/htdocs/login.shtml t/htdocs/logout.shtml
 
 check: test
 
