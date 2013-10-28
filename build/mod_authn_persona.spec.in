@@ -41,13 +41,16 @@ LoadModule authn_persona_module modules/%{name}.so
 Alias /login.shtml /usr/share/@PACKAGE@/login.shtml
 Alias /logout.shtml /usr/share/@PACKAGE@/logout.shtml
 
-#make sure to allow the login page
-<Location /login.shtml>
+<Directory  /usr/share/@PACKAGE@/>
    <IfModule mod_include.c>
     AddType text/html .shtml
     AddOutputFilter INCLUDES .shtml
-    Options +Includes 
+    Options +Includes
    </IfModule>
+</Directory>
+
+#make sure to allow the login page
+<Location /login.shtml>
   Satisfy Any
   Allow from all
 </Location>
@@ -59,8 +62,7 @@ Alias /logout.shtml /usr/share/@PACKAGE@/logout.shtml
     AddOutputFilter INCLUDES .shtml
     Options +Includes 
    </IfModule>
-  Satisfy Any
-  Allow from all
+   require valid-user
 </Location>
 
 #AuthPersonaServerSecret SomeVerySecretPassword
