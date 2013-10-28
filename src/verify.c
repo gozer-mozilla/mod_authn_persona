@@ -194,7 +194,7 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
       res->audience = apr_pstrdup(r->pool, json_object_get_string(val));
     }
     else if (strcmp("expires", key) == 0) {
-      apr_time_ansi_put(&res->expires, json_object_get_int64(val));
+      apr_time_ansi_put(&res->expires, json_object_get_int64(val)/1000);
     }
     else if (strcmp("reason", key) == 0) {
       reason = json_object_get_string(val);

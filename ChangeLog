@@ -1,5 +1,5 @@
 0.0.9
-
+ * [bugfix] Persona Assertions expiry are in milliseconds
 0.0.8 24-Oct-2013
  * Add AuthPersonaFakeBasicAuth On/Off directive
  * Fix per-server configuration merging
