@@ -255,7 +255,8 @@ function showError(rsp) {
   <!--#elif expr="$REDIRECT_REMOTE_USER"-->
   var loggedInUser = "<!--#echo var="REDIRECT_REMOTE_USER" -->";
   <!--#else -->
-  var loggedInUser = undefined;
+    //XXX: This page should never be served unauthenticated
+    var loggedInUser = undefined;
   <!--#endif -->
 
   showError({"status": "failure", "reason": "You have been logged-out"});
