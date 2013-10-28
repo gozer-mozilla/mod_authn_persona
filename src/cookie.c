@@ -166,20 +166,20 @@ void clearCookie(request_rec *r, const buffer_t *secret,
 {
   char *cookie_buf;
   char *domain = "";
-  
+
   if (cookie->domain) {
     domain = apr_pstrcat(r->pool, "Domain=", cookie->domain, ";", NULL);
   }
-  
+
   cookie_buf = apr_psprintf(r->pool,
                             "%s=; Path=%s; %sMax-Age=0",
                             cookie_name, cookie->path, domain);
   apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
   apr_table_set(r->headers_out, "Set-Cookie", cookie_buf);
-  
+
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
                 ERRTAG "Sending cookie payload: %s", cookie_buf);
-    
+
   return;
 }
 
@@ -221,15 +221,15 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
     generateHMAC(r, secret, cookie->verifiedEmail, cookie->identityIssuer,
                  expiry);
 
-  char *cookie_buf =
-    apr_psprintf(r->pool, "%s=%s|%s|%s|%s",
-                 cookie_name, cookie->verifiedEmail,
-                 cookie->identityIssuer, expiry, digest64);
+  char *cookie_buf = apr_psprintf(r->pool, "%s=%s|%s|%s|%s",
+                                  cookie_name, cookie->verifiedEmail,
+                                  cookie->identityIssuer, expiry, digest64);
   char *cookie_flags = apr_psprintf(r->pool, ";HttpOnly;Version=1;%s%s%s%s",
-                  path, domain, max_age, secure);
-  
-  char *cookie_payload = apr_pstrcat(r->pool, cookie_buf, " ", cookie_flags, NULL);
-  
+                                    path, domain, max_age, secure);
+
+  char *cookie_payload =
+    apr_pstrcat(r->pool, cookie_buf, " ", cookie_flags, NULL);
+
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
                 ERRTAG "Sending cookie payload: %s", cookie_payload);
 

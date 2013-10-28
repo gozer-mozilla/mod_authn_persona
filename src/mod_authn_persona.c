@@ -62,7 +62,8 @@ const char *persona_authoritative(cmd_parms *, void *, int);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
 const char *persona_server_logout_url(cmd_parms *, void *, const char *);
-const char *persona_server_logout_returnto_url(cmd_parms *, void *, const char *);
+const char *persona_server_logout_returnto_url(cmd_parms *, void *,
+                                               const char *);
 const char *persona_fake_basic_auth(cmd_parms *, void *, int);
 static apr_status_t persona_generate_secret(apr_pool_t *, server_rec *,
                                             persona_config_t *);
@@ -171,23 +172,24 @@ static int Auth_persona_check_cookie(request_rec *r)
 
       /* Logged-in user is visiting the logout url */
       if (dconf->logout_url) {
-	ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
                       "Checking if %s is a logout request (to %s)",
-                       r->uri, dconf->logout_url);
-	if (strcmp(dconf->logout_url, r->uri) == 0) {
-	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
-                       "User '%s' logging out via '%s', sending to %s",
+                      r->uri, dconf->logout_url);
+        if (strcmp(dconf->logout_url, r->uri) == 0) {
+          ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
+                        "User '%s' logging out via '%s', sending to %s",
                         r->user, r->uri, dconf->logout_returnto_url);
-	  apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO, dconf->logout_returnto_url);
-	  cookie->path = dconf->location;
+          apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO,
+                         dconf->logout_returnto_url);
+          cookie->path = dconf->location;
           cookie->expires = dconf->cookie_duration;
           cookie->domain = dconf->cookie_domain;
           cookie->secure = dconf->cookie_secure;
           cookie->path = dconf->location;
           clearCookie(r, conf->secret, dconf->cookie_name, cookie);
-	}
+        }
       }
-      
+
       return OK;
     }
     else {                      /* cookie didn't validate */
@@ -457,7 +459,7 @@ const char *persona_server_login_url(cmd_parms *cmd, void *cfg,
 }
 
 const char *persona_server_logout_url(cmd_parms *cmd, void *cfg,
-                                     const char *arg)
+                                      const char *arg)
 {
   persona_dir_config_t *dconf = cfg;
   dconf->logout_url = apr_pstrdup(cmd->pool, arg);
@@ -466,7 +468,7 @@ const char *persona_server_logout_url(cmd_parms *cmd, void *cfg,
 }
 
 const char *persona_server_logout_returnto_url(cmd_parms *cmd, void *cfg,
-                                     const char *arg)
+                                               const char *arg)
 {
   persona_dir_config_t *dconf = cfg;
   dconf->logout_returnto_url = apr_pstrdup(cmd->pool, arg);
@@ -545,8 +547,10 @@ static const command_rec Auth_persona_options[] = {
                 NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona login page"),
   AP_INIT_TAKE1("AuthPersonaLogoutURL", persona_server_logout_url,
                 NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona logout page"),
-  AP_INIT_TAKE1("AuthPersonaLogoutReturnTo", persona_server_logout_returnto_url,
-                NULL, RSRC_CONF | OR_AUTHCFG, "URL to redirect to after logging out"),
+  AP_INIT_TAKE1("AuthPersonaLogoutReturnTo",
+                persona_server_logout_returnto_url,
+                NULL, RSRC_CONF | OR_AUTHCFG,
+                "URL to redirect to after logging out"),
   AP_INIT_FLAG("AuthPersonaFakeBasicAuth", persona_fake_basic_auth,
                NULL, RSRC_CONF | OR_AUTHCFG,
                "Should we fake basic authentication?"),
