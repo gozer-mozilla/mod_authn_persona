@@ -262,12 +262,13 @@ function showError(rsp) {
   navigator.id.logout();
 
   function doLogout() {
-  <!--#if expr="$REDIRECT_PERSONA_LOGOUT_RETURNTO" -->
-    window.location.href = "<!--#echo var="REDIRECT_PERSONA_LOGOUT_RETURNTO" -->";
+  <!--#if expr="$PERSONA_LOGOUT_RETURNTO" -->
+    window.location.href = "<!--#echo var="PERSONA_LOGOUT_RETURNTO" -->";
   <!--#else -->
     window.location.href = "/";
   <!--#endif -->
   }
 
 </script>
+<!--#printenv -->
 </body></html>

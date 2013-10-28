@@ -9,6 +9,7 @@
 #define PERSONA_COOKIE_NAME "Persona"
 #define PERSONA_COOKIE_DURATION (60*60*12)
 #define PERSONA_ENV_IDP "PERSONA_IDP"
+#define PERSONA_ENV_LOGOUT_RETURNTO "PERSONA_LOGOUT_RETURNTO"
 #define PERSONA_ISSUER_NOTE "persona-identity-issuer"
 #define PERSONA_SECRET_SIZE HMAC_DIGESTSIZE
 #define PERSONA_ASSERTION_HEADER "X-Persona-Assertion"
@@ -31,6 +32,8 @@ typedef struct persona_dir_config
   int login_url_set;
   char *logout_url;
   int logout_url_set;
+  char *logout_returnto_url;
+  int logout_returnto_url_set;
   char *cookie_name;
   int cookie_name_set;
   char *cookie_domain;

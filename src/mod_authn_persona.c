@@ -62,6 +62,7 @@ const char *persona_authoritative(cmd_parms *, void *, int);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
 const char *persona_server_logout_url(cmd_parms *, void *, const char *);
+const char *persona_server_logout_returnto_url(cmd_parms *, void *, const char *);
 const char *persona_fake_basic_auth(cmd_parms *, void *, int);
 static apr_status_t persona_generate_secret(apr_pool_t *, server_rec *,
                                             persona_config_t *);
@@ -172,8 +173,9 @@ static int Auth_persona_check_cookie(request_rec *r)
       if (dconf->logout_url_set) {
 	if (strcmp(dconf->logout_url, r->uri) == 0) {
 	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
-                       "User '%s' logging out via '%s'",
-                        r->user, r->uri);
+                       "User '%s' logging out via '%s', sending to %s",
+                        r->user, r->uri, dconf->logout_returnto_url);
+	  apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO, dconf->logout_returnto_url);
 	  cookie->path = dconf->location;
           clearCookie(r, conf->secret, dconf->cookie_name, cookie);
 	}
@@ -338,6 +340,8 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
   dconf->login_url_set = 0;
   dconf->logout_url = NULL;
   dconf->logout_url_set = 0;
+  dconf->logout_returnto_url = "/";
+  dconf->logout_returnto_url_set = 0;
   dconf->cookie_secure = 0;
   dconf->cookie_secure_set = 0;
   dconf->authoritative = 1;
@@ -454,6 +458,15 @@ const char *persona_server_logout_url(cmd_parms *cmd, void *cfg,
   return NULL;
 }
 
+const char *persona_server_logout_returnto_url(cmd_parms *cmd, void *cfg,
+                                     const char *arg)
+{
+  persona_dir_config_t *dconf = cfg;
+  dconf->logout_returnto_url = apr_pstrdup(cmd->pool, arg);
+  dconf->logout_returnto_url_set = 1;
+  return NULL;
+}
+
 /* If the current config is set, use it, otherwise, use the parent's */
 #define persona_merge_parent(name, merged, parent, child) \
   merged->name = child->name ## _set ? child->name : parent->name; \
@@ -476,6 +489,7 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   persona_merge_parent(authoritative, merged, parent, child);
   persona_merge_parent(login_url, merged, parent, child);
   persona_merge_parent(logout_url, merged, parent, child);
+  persona_merge_parent(logout_returnto_url, merged, parent, child);
   persona_merge_parent(verifier_url, merged, parent, child);
   persona_merge_parent(assertion_header, merged, parent, child);
   persona_merge_parent(fake_basic_auth, merged, parent, child);
@@ -524,6 +538,8 @@ static const command_rec Auth_persona_options[] = {
                 NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona login page"),
   AP_INIT_TAKE1("AuthPersonaLogoutURL", persona_server_logout_url,
                 NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona logout page"),
+  AP_INIT_TAKE1("AuthPersonaLogoutReturnTo", persona_server_logout_returnto_url,
+                NULL, RSRC_CONF | OR_AUTHCFG, "URL to redirect to after logging out"),
   AP_INIT_FLAG("AuthPersonaFakeBasicAuth", persona_fake_basic_auth,
                NULL, RSRC_CONF | OR_AUTHCFG,
                "Should we fake basic authentication?"),

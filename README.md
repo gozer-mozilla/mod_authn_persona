@@ -106,6 +106,15 @@ Further configuration settings
 
   The location of the login page, it's never accessed directly. But it needs to be
   accessible by unauthenticated users.
+* `AuthPersonaLogoutURL` (default: unset)
+
+  The location where logout happens, accessing it triggers a session logout, but the
+  location is responsible for the Persona JavaScript logout itself
+
+* `AuthPersonaLogoutReturnTo` (default: /)
+
+  When the logout page is accessed, where to redirect the now logged-out user to
+
 * `AuthPersonaFakeBasicAuth`: (default: Off)
 
   When set, this will set a fake Authorization: header with the Persona userid and

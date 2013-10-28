@@ -6,6 +6,7 @@ AuthPersonaServerSecret Test123
 AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
 AuthPersonaLoginURL	/login.shtml
 AuthPersonaLogoutURL    /auth/logout.shtml
+AuthPersonaLogoutReturnTo    /auth/testidp.shtml
 AuthPersonaCookieDuration 300
 AuthPersonaAuthoritative On
 AuthPersonaFakeBasicAuth On
