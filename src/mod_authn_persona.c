@@ -64,7 +64,7 @@ const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
 const char *persona_fake_basic_auth(cmd_parms *, void *, int);
 static apr_status_t persona_generate_secret(apr_pool_t *, server_rec *,
-                                    persona_config_t *);
+                                            persona_config_t *);
 
 static int persona_authn_active(request_rec *r)
 {
@@ -143,7 +143,8 @@ static int Auth_persona_check_cookie(request_rec *r)
     else {
       ap_set_content_type(r, "application/json");
       ap_rwrite(res->errorResponse, strlen(res->errorResponse), r);
-      apr_table_set(r->err_headers_out, "X-Persona-Error", res->errorResponse);
+      apr_table_set(r->err_headers_out, "X-Persona-Error",
+                    res->errorResponse);
 
       // upon assertion verification failure we return JSON explaining why
       r->status = HTTP_INTERNAL_SERVER_ERROR;
@@ -164,9 +165,9 @@ static int Auth_persona_check_cookie(request_rec *r)
 
       /* If requested, fake a Authorization: header */
       if (dconf->fake_basic_auth) {
-	fake_basic_auth(r);
+        fake_basic_auth(r);
       }
-      
+
       return OK;
     }
     else {                      /* cookie didn't validate */
@@ -329,7 +330,8 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
     if (!conf->secret->len) {
       persona_generate_secret(pconf, sp, conf);
       ap_log_error(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, sp,
-                   ERRTAG "created a secret since none was configured for %s (AuthPersonaServerSecret %s)",
+                   ERRTAG
+                   "created a secret since none was configured for %s (AuthPersonaServerSecret %s)",
                    sp->server_hostname, conf->secret->data);
     }
   }
@@ -356,15 +358,15 @@ static apr_status_t persona_generate_secret(apr_pool_t * p, server_rec *s,
 {
   unsigned char *secret = apr_pcalloc(p, conf->secret_size);
   apr_status_t status;
-  
+
   status = apr_generate_random_bytes(secret, conf->secret_size);
 
   if (APR_SUCCESS == status) {
     /* Turn into printable */
-    secret = (unsigned char *) ap_pbase64encode(p, (char *)secret);
+    secret = (unsigned char *) ap_pbase64encode(p, (char *) secret);
     /* Truncate to right length */
     secret[conf->secret_size] = 0;
-    conf->secret->data = (char *)secret;
+    conf->secret->data = (char *) secret;
     conf->secret->len = conf->secret_size;
   }
 
@@ -509,7 +511,7 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   persona_merge_parent(verifier_url, merged, parent, child);
   persona_merge_parent(assertion_header, merged, parent, child);
   persona_merge_parent(fake_basic_auth, merged, parent, child);
-  
+
   return merged;
 }
 
@@ -519,17 +521,19 @@ static void *persona_merge_svr_config(apr_pool_t * p, void *parent_conf,
   persona_config_t *parent = (persona_config_t *) parent_conf;
   persona_config_t *child = (persona_config_t *) child_conf;
   persona_config_t *merged = apr_pcalloc(p, sizeof(*merged));
-  
+
   if (child->secret->len) {
     merged->secret_size = child->secret_size;
     merged->secret = child->secret;
-  } else {
+  }
+  else {
     merged->secret_size = parent->secret_size;
     merged->secret = parent->secret;
   }
- 
+
   return merged;
 }
+
 static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaServerSecret", persona_server_secret_option,
                 NULL, RSRC_CONF, "Server secret to use for cookie signing"),
@@ -551,7 +555,8 @@ static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaLoginURL", persona_server_login_url,
                 NULL, RSRC_CONF | OR_AUTHCFG, "URL to a Persona login page"),
   AP_INIT_FLAG("AuthPersonaFakeBasicAuth", persona_fake_basic_auth,
-               NULL, RSRC_CONF | OR_AUTHCFG, "Should we fake basic authentication?"),
+               NULL, RSRC_CONF | OR_AUTHCFG,
+               "Should we fake basic authentication?"),
   {NULL}
 };
 
