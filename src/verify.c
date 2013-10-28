@@ -222,12 +222,15 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
       apr_psprintf(r->pool, "Audience %s doesn't match %s", res->audience,
                    r->server->server_hostname);
   }
-  if (res->expires && res->expires <= apr_time_now()) {
+
+  apr_time_t now = apr_time_now();
+  if (res->expires && res->expires <= now) {
     char exp_time[APR_RFC822_DATE_LEN];
     apr_rfc822_date(exp_time, res->expires);
     res->errorResponse =
       apr_psprintf(r->pool, "Assertion expired on %s", exp_time);
   }
+
   if (!success) {
     if (reason) {
       res->errorResponse = apr_pstrdup(r->pool, reason);
