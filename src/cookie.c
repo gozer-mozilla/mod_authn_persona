@@ -164,10 +164,22 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
 void clearCookie(request_rec *r, const buffer_t *secret,
                  const char *cookie_name, const Cookie cookie)
 {
-  apr_table_set(r->err_headers_out, "Set-Cookie",
-                apr_psprintf(r->pool,
-                             "%s=; Path=%s; Expires=Thu, 01-Jan-1970 00:00:01 GMT",
-                             cookie_name, cookie->path));
+  char *cookie_buf;
+  char *domain = "";
+  
+  if (cookie->domain) {
+    domain = apr_pstrcat(r->pool, "Domain=", cookie->domain, ";", NULL);
+  }
+  
+  cookie_buf = apr_psprintf(r->pool,
+                            "%s=; Path=%s; %sMax-Age=0",
+                            cookie_name, cookie->path, domain);
+  apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
+  apr_table_set(r->headers_out, "Set-Cookie", cookie_buf);
+  
+  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                ERRTAG "Sending cookie payload: %s", cookie_buf);
+    
   return;
 }
 
@@ -183,7 +195,7 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   char *secure = "";
 
   if (cookie->path) {
-    path = apr_pstrcat(r->pool, " Path=", cookie->path, ";", NULL);
+    path = apr_pstrcat(r->pool, "Path=", cookie->path, ";", NULL);
   }
 
   if (cookie->expires > 0) {
@@ -191,18 +203,18 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
     duration += apr_time_now();
 
     max_age =
-      apr_pstrcat(r->pool, " Max-Age=", apr_itoa(r->pool, cookie->expires),
+      apr_pstrcat(r->pool, "Max-Age=", apr_itoa(r->pool, cookie->expires),
                   ";", NULL);
     expiry =
       apr_psprintf(r->pool, "%" APR_TIME_T_FMT, apr_time_sec(duration));
   }
 
   if (cookie->domain) {
-    domain = apr_pstrcat(r->pool, " Domain=", cookie->domain, ";", NULL);
+    domain = apr_pstrcat(r->pool, "Domain=", cookie->domain, ";", NULL);
   }
 
   if (cookie->secure) {
-    secure = " Secure;";
+    secure = "Secure;";
   }
 
   char *digest64 =
@@ -210,14 +222,17 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
                  expiry);
 
   char *cookie_buf =
-    apr_psprintf(r->pool, "%s=%s|%s|%s|%s; HttpOnly; Version=1; %s%s%s%s",
+    apr_psprintf(r->pool, "%s=%s|%s|%s|%s",
                  cookie_name, cookie->verifiedEmail,
-                 cookie->identityIssuer, expiry, digest64, path, domain,
-                 max_age, secure);
-
+                 cookie->identityIssuer, expiry, digest64);
+  char *cookie_flags = apr_psprintf(r->pool, ";HttpOnly;Version=1;%s%s%s%s",
+                  path, domain, max_age, secure);
+  
+  char *cookie_payload = apr_pstrcat(r->pool, cookie_buf, " ", cookie_flags, NULL);
+  
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                ERRTAG "Sending cookie payload: %s", cookie_buf);
+                ERRTAG "Sending cookie payload: %s", cookie_payload);
 
   /* syntax of cookie is identity|signature */
-  apr_table_set(r->err_headers_out, "Set-Cookie", cookie_buf);
+  apr_table_set(r->err_headers_out, "Set-Cookie", cookie_payload);
 }

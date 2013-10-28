@@ -1,4 +1,4 @@
-0.1.0
+0.1
 
 0.0.9 28-Oct-2013
  * Add AuthPersonaLogoutReturnTo configuration for post-logout redirecting
