@@ -74,6 +74,9 @@ Alias /logout.shtml /usr/share/@PACKAGE@/logout.shtml
 
 EOF
 
+%check
+make test
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
