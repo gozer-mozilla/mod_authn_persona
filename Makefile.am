@@ -22,10 +22,12 @@ mod_authn_persona_la_LDFLAGS = -module -avoid-version $(JSON_LIBS) $(LIBCURL)
 mod_authn_persona_ladir = $(datarootdir)/$(PACKAGE)
 mod_authn_persona_la_DATA = t/htdocs/login.shtml t/htdocs/logout.shtml
 
+TEST_VERBOSE := 0
+
 check: test
 
 test: all t/TEST
-	$(PERL) t/TEST
+	$(PERL) t/TEST --verbose=$(TEST_VERBOSE)
 
 t/TEST: build/test.pl
 	$(PERL) build/test.pl -apxs $(APXS)
