@@ -129,7 +129,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       assert(res->verifiedEmail);
       assert(res->identityIssuer);
 
-      ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
+      ap_log_rerror(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, r, ERRTAG
                     "email '%s' verified, vouched for by issuer '%s'",
                     res->verifiedEmail, res->identityIssuer);
 
@@ -139,6 +139,8 @@ static int Auth_persona_check_cookie(request_rec *r)
       set_cookie_from_config(dconf, cookie);
 
       sendSignedCookie(r, conf->secret, dconf->cookie_name, cookie);
+      
+      r->user = apr_pstrdup(r->pool, res->verifiedEmail);
 
       /* XXX: At this point, we have authenticated the user, but we bail out too soon
        * XXX: from the processing. For this request completion, there is no r->user
