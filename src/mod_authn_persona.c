@@ -85,6 +85,13 @@ static void fake_basic_auth(request_rec *r)
   return;
 }
 
+static void set_cookie_from_config(persona_dir_config_t *dconf, Cookie cookie)
+{
+   cookie->expires = dconf->cookie_duration;
+   cookie->domain = dconf->cookie_domain;
+   cookie->secure = dconf->cookie_secure;
+   cookie->path = dconf->location;
+}
 /**************************************************
  * Authentication phase
  *
@@ -129,10 +136,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       Cookie cookie = apr_pcalloc(r->pool, sizeof(struct _Cookie));
       cookie->verifiedEmail = res->verifiedEmail;
       cookie->identityIssuer = res->identityIssuer;
-      cookie->expires = dconf->cookie_duration;
-      cookie->domain = dconf->cookie_domain;
-      cookie->secure = dconf->cookie_secure;
-      cookie->path = dconf->location;
+      set_cookie_from_config(dconf, cookie);
 
       sendSignedCookie(r, conf->secret, dconf->cookie_name, cookie);
 
@@ -178,11 +182,7 @@ static int Auth_persona_check_cookie(request_rec *r)
                         r->user, r->uri, dconf->logout_returnto_url);
           apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO,
                          dconf->logout_returnto_url);
-          cookie->path = dconf->location;
-          cookie->expires = dconf->cookie_duration;
-          cookie->domain = dconf->cookie_domain;
-          cookie->secure = dconf->cookie_secure;
-          cookie->path = dconf->location;
+	  set_cookie_from_config(dconf, cookie);
           clearCookie(r, conf->secret, dconf->cookie_name, cookie);
         }
       }
