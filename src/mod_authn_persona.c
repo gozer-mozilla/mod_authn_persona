@@ -172,9 +172,6 @@ static int Auth_persona_check_cookie(request_rec *r)
 
       /* Logged-in user is visiting the logout url */
       if (dconf->logout_url) {
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
-                      "Checking if %s is a logout request (to %s)",
-                      r->uri, dconf->logout_url);
         if (strcmp(dconf->logout_url, r->uri) == 0) {
           ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
                         "User '%s' logging out via '%s', sending to %s",
