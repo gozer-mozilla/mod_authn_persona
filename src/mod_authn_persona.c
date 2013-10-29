@@ -194,12 +194,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     }
   }
 
-  if (dconf->authoritative) {
-    return HTTP_UNAUTHORIZED;
-  }
-  else {
-    return DECLINED;
-  }
+  return HTTP_UNAUTHORIZED;
 }
 
 
@@ -276,7 +271,12 @@ static int Auth_persona_check_auth(request_rec *r)
   }
 
   /* give others a chance */
-  return DECLINED;
+  if (dconf->authoritative) {
+    return HTTP_UNAUTHORIZED;
+  }
+  else {
+    return DECLINED;
+  }
 }
 
 static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
