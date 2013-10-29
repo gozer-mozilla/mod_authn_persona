@@ -85,13 +85,15 @@ static void fake_basic_auth(request_rec *r)
   return;
 }
 
-static void set_cookie_from_config(persona_dir_config_t *dconf, Cookie cookie)
+static void set_cookie_from_config(persona_dir_config_t * dconf,
+                                   Cookie cookie)
 {
-   cookie->expires = dconf->cookie_duration;
-   cookie->domain = dconf->cookie_domain;
-   cookie->secure = dconf->cookie_secure;
-   cookie->path = dconf->location;
+  cookie->expires = dconf->cookie_duration;
+  cookie->domain = dconf->cookie_domain;
+  cookie->secure = dconf->cookie_secure;
+  cookie->path = dconf->location;
 }
+
 /**************************************************
  * Authentication phase
  *
@@ -139,7 +141,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       set_cookie_from_config(dconf, cookie);
 
       sendSignedCookie(r, conf->secret, dconf->cookie_name, cookie);
-      
+
       r->user = apr_pstrdup(r->pool, res->verifiedEmail);
 
       /* XXX: At this point, we have authenticated the user, but we bail out too soon
@@ -180,7 +182,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       if (dconf->logout_url && strcmp(dconf->logout_url, r->uri) == 0) {
         ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
                       "User '%s' logging out via '%s', sending to %s",
-                     r->user, r->uri, dconf->logout_returnto_url);
+                      r->user, r->uri, dconf->logout_returnto_url);
         apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO,
                        dconf->logout_returnto_url);
         set_cookie_from_config(dconf, cookie);
