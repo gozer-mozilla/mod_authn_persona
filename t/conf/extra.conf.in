@@ -3,12 +3,12 @@ LoadModule authn_persona_module @ServerRoot@/../.libs/mod_authn_persona.so
 AuthPersonaCookieName   Test-Persona
 #AuthPersonaCookieDomain .localhost.localdomain
 AuthPersonaServerSecret Test123
-AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
+#AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
 AuthPersonaLoginURL	/login.shtml
 AuthPersonaLogoutURL    /auth/logout.shtml
 AuthPersonaLogoutReturnTo    /auth/testidp.shtml
 AuthPersonaCookieDuration 300
-AuthPersonaAuthoritative On
+AuthPersonaAuthoritative Off
 AuthPersonaFakeBasicAuth On
 
 <Location />

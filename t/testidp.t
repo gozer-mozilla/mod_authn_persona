@@ -7,29 +7,55 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 4, need_module('JSON');
+use URI::Escape;
+
+use HTTP::Cookies;
+
+my $cookie_jar = HTTP::Cookies->new();
+Apache::TestRequest::user_agent(cookie_jar => $cookie_jar);
+
+plan tests => 11, need_module('JSON');
 
 require JSON;
 JSON->import;
 
-my $idp = "https://testidp.org";
+my $idp = "http://personatestuser.org";
 
-my ($domain, $password, $email);
+#email_with_assertion/https%3A%2F%2Fmaximus.local
+
+my $audience = uri_escape("http://" . Apache::Test::vars('servername'));
+
+my $ua = LWP::UserAgent->new;
+
+my ($assertion, $password, $email);
 
 {
-  my $res = GET "$idp/api/domain";
+  my $res = GET "$idp/email";
 
   ok $res->is_success;
 
   my $data = decode_json($res->content);
 
-  $domain = $data->{'domain'};
-  $password = $data->{'password'};
-  $email = "test\@$domain";
+  $password = $data->{'pass'};
+  $email = $data->{'email'};
 
   t_debug("email=$email");
+  t_debug("password=$password");
 
-  ok ($domain and $password);
+  ok ($email and $password);
+}
+
+{ 
+  my $res = GET "$idp/assertion/$audience/$email/$password";
+  
+  ok $res->is_success;
+  
+  my $data = decode_json($res->content);
+
+  $assertion = $data->{assertion};
+  
+  t_debug("assertion=$assertion");
+  ok ($assertion);
 }
 
 { #Initial request
@@ -37,11 +63,36 @@ my ($domain, $password, $email);
   ok t_cmp( $res->code, 401, "Initial request unauthorided");
 }
 
-my $ua = LWP::UserAgent->new;
-$ua->default_header('X-Password' => $password);
-{
-  my $req = HTTP::Request->new("DELETE", "$idp/api/$domain");
-  my $res = $ua->request($req);
-  ok $res->is_success;
+{ #Request with assertion
+  my $res = POST "/auth/", 'X-Persona-Assertion' => $assertion;
+  ok t_cmp( $res->code, 200, "Initial request success");
 }
 
+{ #Request with session cookie
+  my $res = GET "/auth/";
+  ok t_cmp( $res->code, 200, "Initial request unauthorized");
+}
+
+{ #request with modified cookie
+  my ($version, $key, $val, $path, $domain, $port, $path_spec, $secure, $expires, $discard);
+  my $cookie_count = 0;
+  $cookie_jar->scan(sub { ($version, $key, $val, $path, $domain, $port, $path_spec, $secure, $expires, $discard) = @_; $cookie_count++});
+  
+  ok t_cmp( $cookie_count, 1, "One cookie set");
+  ok t_debug("Persona cookie $key: $val");
+  
+  $val = "x" . $val . "x";
+  
+  $cookie_jar->set_cookie( $version, $key, $val, $path, $domain, $port, $path_spec, $secure, $expires, $discard);
+  
+  t_server_log_error_is_expected();
+  my $res = GET "/auth/";
+  
+  ok t_cmp( $res->code, 401, "Cookie tampering");
+  
+  $cookie_count = 0;
+  $cookie_jar->scan(sub { $cookie_count++ });
+  
+  ok t_cmp( $cookie_count, 0, "Cookie got deleted");
+  
+}
