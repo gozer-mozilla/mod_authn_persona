@@ -222,7 +222,10 @@ window.onload = function() {
         }
       });
     },
-    onlogout: function() { showError({"status": "failure", "reason": "You have been logged out"}); },
+    onlogout: function() {
+      if (loggedInUser) {
+        showError({"status": "failure", "reason": "You have been logged out"});
+      }},
     onready: function() {
       if (!processingAssertion) {
         document.getElementsByTagName('body')[0].className = '';
