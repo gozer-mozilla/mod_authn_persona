@@ -175,18 +175,15 @@ static int Auth_persona_check_cookie(request_rec *r)
       }
 
       /* Logged-in user is visiting the logout url */
-      if (dconf->logout_url) {
-        if (strcmp(dconf->logout_url, r->uri) == 0) {
-          ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
-                        "User '%s' logging out via '%s', sending to %s",
-                        r->user, r->uri, dconf->logout_returnto_url);
-          apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO,
-                         dconf->logout_returnto_url);
-	  set_cookie_from_config(dconf, cookie);
-          clearCookie(r, conf->secret, dconf->cookie_name, cookie);
-        }
+      if (dconf->logout_url && strcmp(dconf->logout_url, r->uri) == 0) {
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
+                      "User '%s' logging out via '%s', sending to %s",
+                     r->user, r->uri, dconf->logout_returnto_url);
+        apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO,
+                       dconf->logout_returnto_url);
+        set_cookie_from_config(dconf, cookie);
+        clearCookie(r, conf->secret, dconf->cookie_name, cookie);
       }
-
       return OK;
     }
     else {                      /* cookie didn't validate */
