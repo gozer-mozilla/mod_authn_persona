@@ -127,6 +127,12 @@ static int Auth_persona_check_cookie(request_rec *r)
   // this is a programatic XHR request
   if (assertion) {
     VerifyResult res = processAssertion(r, dconf->verifier_url, assertion);
+
+    /* XXX: Needs to be configurable */
+    if (1) {
+      verify_assertion_local(r, assertion);
+    }
+    
     if (!res->errorResponse) {
       assert(res->verifiedEmail);
       assert(res->identityIssuer);

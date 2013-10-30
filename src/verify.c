@@ -78,6 +78,58 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb,
   return realsize;
 }
 
+/*XXX: Needs length to be returned, signatures are binary blobs */
+static char *base64url_decode(apr_pool_t *p, const char *input) {
+  int len = apr_base64_decode_len(input);
+  char *decoded = apr_pcalloc(p, len);
+  len = apr_base64_decode(decoded, input);
+  return decoded;
+}
+
+void verify_assertion_local(request_rec *r, const char *assertion)
+{  
+  char *pair;
+  char *last = NULL;
+  char *assertion_string = apr_pstrdup(r->pool, assertion);
+
+  char *delim = ".";
+  const char *assertions[16];
+  
+  int i = 0;
+
+  /* XXX: Need to make sure we don't overrun assertions[] */
+  for (pair = apr_strtok(assertion_string, delim, &last);
+       pair; pair = apr_strtok(NULL, delim, &last)) {
+    assertions[i++] = pair;
+  }
+  
+  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                ERRTAG "Total is %d", i);
+  
+  int assertion_count = i;
+  
+  json_object *json_assertions[16];
+  enum json_tokener_error jerr;
+  
+  for (i=0; i < assertion_count; i++) {
+        assertions[i] = base64url_decode(r->pool, assertions[i]);
+	json_assertions[i] = json_tokener_parse_verbose(assertions[i], &jerr);
+	if (json_tokener_success != jerr) {
+	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG "json parse error %s", json_tokener_error_desc(jerr));
+	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                ERRTAG "Raw Pair %d is %s", i, assertions[i]);
+	}
+	else {
+	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                ERRTAG "JSON is %s", json_object_to_json_string(json_assertions[i]));
+	}
+  }
+  
+  return; 
+}
+
+
+
 /* Pass the assertion to the verification service defined in the config,
  * and return the result to the caller */
 static char *verifyAssertionRemote(request_rec *r, const char *verifier_url,
