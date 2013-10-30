@@ -5,7 +5,6 @@ AuthPersonaCookieName   Test-Persona
 AuthPersonaServerSecret Test123
 #AuthPersonaVerifierURL  https://verifier.login.anosrep.org/verify
 AuthPersonaLoginURL	/login.shtml
-AuthPersonaLogoutURL    /auth/logout.shtml
 AuthPersonaLogoutReturnTo    /auth/testidp.shtml
 AuthPersonaCookieDuration 300
 AuthPersonaAuthoritative Off
@@ -22,7 +21,18 @@ AuthPersonaFakeBasicAuth On
 Alias /auth @documentroot@
 <Location /auth>
   AuthPersonaCookieSecure Off
+  AuthPersonaLogoutURL    /auth/logout.shtml
   Authname "Persona Login"
   AuthType Persona
   require valid-user
 </Location>
+
+Alias /auth-local @documentroot@
+<Location /auth-local>
+  AuthPersonaLocalVerify On
+  AuthPersonaLogoutURL    /auth-local/logout.shtml
+  Authname "Persona Login"
+  AuthType Persona
+  require valid-user
+</Location>
+
