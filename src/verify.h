@@ -56,7 +56,7 @@ typedef struct _VerifyResult
   const char *errorResponse;
 }            *VerifyResult;
 
-void verify_assertion_local(request_rec *, const char *);
+VerifyResult verify_assertion_local(request_rec *, const char *);
 
 /**
  * process an assertion:

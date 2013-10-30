@@ -86,10 +86,11 @@ static char *base64url_decode(apr_pool_t *p, const char *input) {
   return decoded;
 }
 
-void verify_assertion_local(request_rec *r, const char *assertion)
+VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
 {  
   char *pair;
   char *last = NULL;
+  VerifyResult res = apr_pcalloc(r->pool, sizeof(struct _VerifyResult));
   char *assertion_string = apr_pstrdup(r->pool, assertion);
 
   char *delim = ".";
@@ -125,7 +126,29 @@ void verify_assertion_local(request_rec *r, const char *assertion)
 	}
   }
   
-  return; 
+  json_object *principal = json_object_object_get(json_assertions[1], "principal");
+  json_object *issuer = json_object_object_get(json_assertions[1], "iss");
+  json_object *email = NULL;
+
+  /* Not fully implemented yet */
+  res->errorResponse = "Local verification enabled but not implemented yet";
+  
+  if (principal && json_object_is_type(principal, json_type_object)) {
+    email = json_object_object_get(principal, "email");
+    if (email && json_object_is_type(email, json_type_string)) {
+       res->verifiedEmail = json_object_get_string(email);
+    }
+  }
+  if (issuer && json_object_is_type(issuer, json_type_string)) {
+    res->identityIssuer = json_object_get_string(issuer);
+  }
+  
+  /* Fake success */
+  if (email && issuer) {
+    res->errorResponse = NULL; 
+  }
+  
+  return res;
 }
 
 

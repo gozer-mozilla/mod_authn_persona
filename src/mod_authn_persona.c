@@ -127,11 +127,12 @@ static int Auth_persona_check_cookie(request_rec *r)
   // We'll trade you a valid assertion for a session cookie!
   // this is a programatic XHR request
   if (assertion) {
-    VerifyResult res = processAssertion(r, dconf->verifier_url, assertion);
-
-    /* XXX: Needs to be configurable */
+    VerifyResult res;
     if (dconf->local_verify) {
-      verify_assertion_local(r, assertion);
+      res = verify_assertion_local(r, assertion);
+    }
+    else {
+      res = processAssertion(r, dconf->verifier_url, assertion);
     }
     
     if (!res->errorResponse) {
@@ -161,6 +162,10 @@ static int Auth_persona_check_cookie(request_rec *r)
       ap_set_content_type(r, "application/json");
       ap_rwrite(res->errorResponse, strlen(res->errorResponse), r);
       apr_table_set(r->err_headers_out, "X-Persona-Error",
+                    res->errorResponse);
+      
+      ap_log_rerror(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, r, ERRTAG
+                    "Assertion verification failed (%s)",
                     res->errorResponse);
 
       // upon assertion verification failure we return JSON explaining why
