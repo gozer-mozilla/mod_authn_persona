@@ -134,7 +134,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     else {
       res = processAssertion(r, dconf->verifier_url, assertion);
     }
-    
+
     if (!res->errorResponse) {
       assert(res->verifiedEmail);
       assert(res->identityIssuer);
@@ -163,10 +163,9 @@ static int Auth_persona_check_cookie(request_rec *r)
       ap_rwrite(res->errorResponse, strlen(res->errorResponse), r);
       apr_table_set(r->err_headers_out, "X-Persona-Error",
                     res->errorResponse);
-      
+
       ap_log_rerror(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, r, ERRTAG
-                    "Assertion verification failed (%s)",
-                    res->errorResponse);
+                    "Assertion verification failed (%s)", res->errorResponse);
 
       // upon assertion verification failure we return JSON explaining why
       r->status = HTTP_INTERNAL_SERVER_ERROR;
@@ -562,7 +561,8 @@ static const command_rec Auth_persona_options[] = {
   AP_INIT_FLAG("AuthPersonaAuthoritative", persona_authoritative,
                NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
   AP_INIT_FLAG("AuthPersonaLocalVerify", persona_local_verify,
-               NULL, RSRC_CONF | OR_AUTHCFG, "Perform local assertion verification"),
+               NULL, RSRC_CONF | OR_AUTHCFG,
+               "Perform local assertion verification"),
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
                 NULL, RSRC_CONF | OR_AUTHCFG,
                 "URL to a Persona Verfier service"),

@@ -79,7 +79,8 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb,
 }
 
 /*XXX: Needs length to be returned, signatures are binary blobs */
-static char *base64url_decode(apr_pool_t *p, const char *input) {
+static char *base64url_decode(apr_pool_t * p, const char *input)
+{
   int len = apr_base64_decode_len(input);
   char *decoded = apr_pcalloc(p, len);
   len = apr_base64_decode(decoded, input);
@@ -87,7 +88,7 @@ static char *base64url_decode(apr_pool_t *p, const char *input) {
 }
 
 VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
-{  
+{
   char *pair;
   char *last = NULL;
   VerifyResult res = apr_pcalloc(r->pool, sizeof(struct _VerifyResult));
@@ -95,7 +96,7 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
 
   char *delim = ".";
   const char *assertions[16];
-  
+
   int i = 0;
 
   /* XXX: Need to make sure we don't overrun assertions[] */
@@ -103,30 +104,35 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
        pair; pair = apr_strtok(NULL, delim, &last)) {
     assertions[i++] = pair;
   }
-  
+
   ap_log_rerror(APLOG_MARK, APLOG_WARNING | APLOG_NOERRNO, 0, r,
-                ERRTAG "Local Assertion Verification enabled but not implemented yet");
-  
+                ERRTAG
+                "Local Assertion Verification enabled but not implemented yet");
+
   int assertion_count = i;
-  
+
   json_object *json_assertions[16];
   enum json_tokener_error jerr;
-  
-  for (i=0; i < assertion_count; i++) {
-        assertions[i] = base64url_decode(r->pool, assertions[i]);
-	json_assertions[i] = json_tokener_parse_verbose(assertions[i], &jerr);
-	if (json_tokener_success != jerr) {
-	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG "json parse error %s", json_tokener_error_desc(jerr));
-	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                ERRTAG "Raw Pair %d is %s", i, assertions[i]);
-	}
-	else {
-	  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                ERRTAG "JSON is %s", json_object_to_json_string(json_assertions[i]));
-	}
+
+  for (i = 0; i < assertion_count; i++) {
+    assertions[i] = base64url_decode(r->pool, assertions[i]);
+    json_assertions[i] = json_tokener_parse_verbose(assertions[i], &jerr);
+    if (json_tokener_success != jerr) {
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                    ERRTAG "json parse error %s",
+                    json_tokener_error_desc(jerr));
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                    ERRTAG "Raw Pair %d is %s", i, assertions[i]);
+    }
+    else {
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                    ERRTAG "JSON is %s",
+                    json_object_to_json_string(json_assertions[i]));
+    }
   }
-  
-  json_object *principal = json_object_object_get(json_assertions[1], "principal");
+
+  json_object *principal =
+    json_object_object_get(json_assertions[1], "principal");
   json_object *issuer = json_object_object_get(json_assertions[1], "iss");
   json_object *expiry = json_object_object_get(json_assertions[3], "exp");
   json_object *audience = json_object_object_get(json_assertions[3], "aud");
@@ -134,31 +140,33 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
 
   /* Not fully implemented yet */
   res->errorResponse = "Local verification enabled but not implemented yet";
-  
+
   if (principal && json_object_is_type(principal, json_type_object)) {
     email = json_object_object_get(principal, "email");
     if (email && json_object_is_type(email, json_type_string)) {
-       res->verifiedEmail = json_object_get_string(email);
+      res->verifiedEmail = json_object_get_string(email);
     }
   }
   if (issuer && json_object_is_type(issuer, json_type_string)) {
     res->identityIssuer = json_object_get_string(issuer);
   }
   if (audience && json_object_is_type(audience, json_type_string)) {
-    const char *audience_str =  json_object_get_string(audience);
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG "Audience is %s", audience_str);
+    const char *audience_str = json_object_get_string(audience);
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                  ERRTAG "Audience is %s", audience_str);
   }
-  
+
   if (expiry && json_object_is_type(expiry, json_type_int)) {
     int64_t expiry_time = json_object_get_int64(expiry);
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG "Expiry is %ld", expiry_time);
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                  ERRTAG "Expiry is %ld", expiry_time);
   }
-  
+
   /* Fake success */
   if (email && issuer) {
-    res->errorResponse = NULL; 
+    res->errorResponse = NULL;
   }
-  
+
   return res;
 }
 
