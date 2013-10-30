@@ -128,6 +128,8 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
   
   json_object *principal = json_object_object_get(json_assertions[1], "principal");
   json_object *issuer = json_object_object_get(json_assertions[1], "iss");
+  json_object *expiry = json_object_object_get(json_assertions[3], "exp");
+  json_object *audience = json_object_object_get(json_assertions[3], "aud");
   json_object *email = NULL;
 
   /* Not fully implemented yet */
@@ -141,6 +143,15 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
   }
   if (issuer && json_object_is_type(issuer, json_type_string)) {
     res->identityIssuer = json_object_get_string(issuer);
+  }
+  if (audience && json_object_is_type(audience, json_type_string)) {
+    const char *audience_str =  json_object_get_string(audience);
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG "Audience is %s", audience_str);
+  }
+  
+  if (expiry && json_object_is_type(expiry, json_type_int)) {
+    int64_t expiry_time = json_object_get_int64(expiry);
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG "Expiry is %ld", expiry_time);
   }
   
   /* Fake success */
