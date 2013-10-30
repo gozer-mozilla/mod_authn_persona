@@ -42,6 +42,8 @@ typedef struct persona_dir_config
   int cookie_duration_set;
   int cookie_secure;
   int cookie_secure_set;
+  int local_verify;
+  int local_verify_set;
   char *assertion_header;
   int assertion_header_set;
   int authoritative;

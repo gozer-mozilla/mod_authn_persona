@@ -59,6 +59,7 @@ const char *persona_server_cookie_domain(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_duration(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_secure(cmd_parms *, void *, int);
 const char *persona_authoritative(cmd_parms *, void *, int);
+const char *persona_local_verify(cmd_parms *, void *, int);
 const char *persona_server_verifier_url(cmd_parms *, void *, const char *);
 const char *persona_server_login_url(cmd_parms *, void *, const char *);
 const char *persona_server_logout_url(cmd_parms *, void *, const char *);
@@ -129,7 +130,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     VerifyResult res = processAssertion(r, dconf->verifier_url, assertion);
 
     /* XXX: Needs to be configurable */
-    if (1) {
+    if (dconf->local_verify) {
       verify_assertion_local(r, assertion);
     }
     
@@ -367,6 +368,8 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
   dconf->cookie_duration_set = 0;
   dconf->assertion_header = PERSONA_ASSERTION_HEADER;
   dconf->assertion_header_set = 0;
+  dconf->local_verify = 0;
+  dconf->local_verify_set = 0;
   return dconf;
 }
 
@@ -416,6 +419,14 @@ const char *persona_server_cookie_secure(cmd_parms *cmd, void *cfg, int flag)
   persona_dir_config_t *dconf = cfg;
   dconf->cookie_secure = flag;
   dconf->cookie_secure_set = 1;
+  return NULL;
+}
+
+const char *persona_local_verify(cmd_parms *cmd, void *cfg, int flag)
+{
+  persona_dir_config_t *dconf = cfg;
+  dconf->local_verify = flag;
+  dconf->local_verify_set = 1;
   return NULL;
 }
 
@@ -506,6 +517,7 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   persona_merge_parent(verifier_url, merged, parent, child);
   persona_merge_parent(assertion_header, merged, parent, child);
   persona_merge_parent(fake_basic_auth, merged, parent, child);
+  persona_merge_parent(local_verify, merged, parent, child);
 
   return merged;
 }
@@ -544,6 +556,8 @@ static const command_rec Auth_persona_options[] = {
                NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
   AP_INIT_FLAG("AuthPersonaAuthoritative", persona_authoritative,
                NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
+  AP_INIT_FLAG("AuthPersonaLocalVerify", persona_local_verify,
+               NULL, RSRC_CONF | OR_AUTHCFG, "Perform local assertion verification"),
   AP_INIT_TAKE1("AuthPersonaVerifierURL", persona_server_verifier_url,
                 NULL, RSRC_CONF | OR_AUTHCFG,
                 "URL to a Persona Verfier service"),
