@@ -235,4 +235,5 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
 
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie", cookie_payload);
+  apr_table_set(r->headers_out, "Set-Cookie", cookie_payload);
 }
