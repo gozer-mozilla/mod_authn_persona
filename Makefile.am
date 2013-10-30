@@ -33,7 +33,7 @@ t/TEST: build/test.pl
 	$(PERL) build/test.pl -apxs $(APXS)
 
 rpm: dist
-	rpmbuild -tb $(DIST_ARCHIVES)
+	rpmbuild -ta $(DIST_ARCHIVES)
 
 srpm: dist
 	rpmbuild -ts $(DIST_ARCHIVES)
