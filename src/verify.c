@@ -104,8 +104,8 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
     assertions[i++] = pair;
   }
   
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                ERRTAG "Total is %d", i);
+  ap_log_rerror(APLOG_MARK, APLOG_WARNING | APLOG_NOERRNO, 0, r,
+                ERRTAG "Local Assertion Verification enabled but not implemented yet");
   
   int assertion_count = i;
   
