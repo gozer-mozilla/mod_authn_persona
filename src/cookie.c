@@ -135,7 +135,7 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
   char *digest64 = generateHMAC(r, secret, addr, iss, exp);
 
   /* paranoia indicates that we should use a time-invariant compare here */
-  if (strcmp(digest64, sig)) {
+  if (strncmp(digest64, sig, strlen(digest64))) {
     ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
                   ERRTAG "invalid Persona cookie, HMAC mismatch (tamper?)");
     return NULL;
