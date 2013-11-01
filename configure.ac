@@ -24,6 +24,8 @@ LIBCURL_CHECK_CONFIG([],[],[],[
     AC_MSG_ERROR([libcurl is required])
 ])
 
+CHECK_SSL([],[AC_MSG_ERROR([openssl is required])])
+
 PKG_CHECK_MODULES([JSON], [json])
 
 AC_PROG_PERL_VERSION(5.8.0)

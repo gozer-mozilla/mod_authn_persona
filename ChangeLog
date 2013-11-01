@@ -1,5 +1,6 @@
 0.3
  * Working test suite, via http://personatestuser.org/
+ * Require openssl
 0.2 29-Oct-2013
  * Bugfixes
 0.1 28-Oct-2013
