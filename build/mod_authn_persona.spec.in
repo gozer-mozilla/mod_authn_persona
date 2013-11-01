@@ -66,11 +66,12 @@ Alias /logout.shtml /usr/share/@PACKAGE@/logout.shtml
 </Location>
 
 #AuthPersonaServerSecret SomeVerySecretPassword
+# Sending cookies via http is a security risk, they could be stolen
+AuthPersonaCookieSecure On
 #<Location />
 #  AuthType Persona
 #  require valid-user
 #</Location>
-
 
 EOF
 

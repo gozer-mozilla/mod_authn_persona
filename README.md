@@ -89,6 +89,9 @@ Further configuration settings
 * `AuthPersonaCookieSecure`: (default: Off)
 
   If the cookie should be limited to SSL connections or not
+  
+  Sending this cookie via non-SSL connections is dangereous, as stealing this
+  cookie steals your identity.
 
 * `AuthPersonaCookieDuration`: (default: 1 day)
 
