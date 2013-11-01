@@ -2,6 +2,7 @@
  * Working test suite, via http://personatestuser.org/
  * Require openssl
  * Get rid of custom HMAC implementation in favor of OpenSSL's (upgrade to
+ * Cookies are now JSON encoded
    SHA256 as well)
 0.2 29-Oct-2013
  * Bugfixes

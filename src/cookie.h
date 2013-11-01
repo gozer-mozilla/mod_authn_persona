@@ -24,6 +24,8 @@
 #include "defines.h"
 #include "hmac.h"
 
+#define PERSONA_COOKIE_VERSION 1
+
 typedef struct _Cookie
 {
   const char *verifiedEmail;    // email that was verified

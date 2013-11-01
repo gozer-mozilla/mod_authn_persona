@@ -207,6 +207,8 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   char *domain = "";
   char *secure = "";
   json_object *jcookie = json_object_new_object();
+  
+  json_object_object_add(jcookie, "v", json_object_new_int(PERSONA_COOKIE_VERSION));
 
   if (cookie->path) {
     path = apr_pstrcat(r->pool, "Path=", cookie->path, ";", NULL);
