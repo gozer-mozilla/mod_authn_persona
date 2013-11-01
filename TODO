@@ -4,6 +4,5 @@
  - Rename ServerSecret to SessionSecret
  - Cookie
    - Needs versionning for format changes (or just invalid and expect to re-issue?)
-   - Move checksum to front so all can be verified *before* as much parsing as possible
    - CookieClear should simply invoke SendSignedCookie() [duplication]
    - [bug] Cookie path is wrong when persona is configured with anything but <VirtualHost> or <Location>
