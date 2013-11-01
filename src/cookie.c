@@ -162,12 +162,12 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
 
   json_object *email = json_object_object_get(jcookie, "email");
   if (email && json_object_is_type(email, json_type_string)) {
-    c->verifiedEmail = json_object_get_string(email);
+    c->verifiedEmail = apr_pstrdup(r->pool, json_object_get_string(email));
   }
 
   json_object *issuer = json_object_object_get(jcookie, "issuer");
   if (issuer && json_object_is_type(issuer, json_type_string)) {
-    c->identityIssuer = json_object_get_string(issuer);
+    c->identityIssuer = apr_pstrdup(r->pool, json_object_get_string(issuer));
   }
 
   json_object_put(jcookie);
