@@ -306,8 +306,8 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
       persona_generate_secret(pconf, sp, conf);
       ap_log_error(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, sp,
                    ERRTAG
-                   "created a secret since none was configured for %s (AuthPersonaServerSecret %s)",
-                   sp->server_hostname, conf->secret->data);
+                   "created a secret since none was configured for %s",
+                   sp->server_hostname);
     }
   }
 
@@ -337,8 +337,6 @@ static apr_status_t persona_generate_secret(apr_pool_t * p, server_rec *s,
   status = apr_generate_random_bytes(secret, conf->secret_size);
 
   if (APR_SUCCESS == status) {
-    /* Turn into printable */
-    secret = (unsigned char *) ap_pbase64encode(p, (char *) secret);
     /* Truncate to right length */
     secret[conf->secret_size] = 0;
     conf->secret->data = (char *) secret;
