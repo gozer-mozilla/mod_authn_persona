@@ -1,12 +1,12 @@
 #ifndef __HMAC_H__
 #define __HMAC_H__
 
-#include <apr_strings.h>
-#include <apr_sha1.h>
-#include <apr_base64.h>
+#include "apr.h"
 
-#define HMAC_DIGESTSIZE APR_SHA1_DIGESTSIZE
-#define HMAC_BLOCKSIZE 64
+#include <openssl/evp.h>
+
+#define HMAC_ALGORITHM EVP_sha256()
+#define HMAC_DIGESTSIZE (EVP_MD_size(HMAC_ALGORITHM))
 
 void hmac(const void *, apr_size_t, const void *, apr_size_t, void *);
 
