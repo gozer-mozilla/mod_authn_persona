@@ -71,7 +71,7 @@ static apr_status_t persona_generate_secret(apr_pool_t *, server_rec *,
 
 static int persona_authn_active(request_rec *r)
 {
-  return (strcmp("Persona", ap_auth_type(r)) == 0) ? 1 : 0;
+  return (strncmp("Persona", ap_auth_type(r), 8) == 0) ? 1 : 0;
 }
 
 static void fake_basic_auth(request_rec *r)
