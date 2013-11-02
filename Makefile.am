@@ -9,7 +9,7 @@ EXTRA_DIST=t README.md ChangeLog build/mod_authn_persona.spec build/test.pl .ind
 
 APR_CONFIG = $(shell $(APXS) -q APR_CONFIG)
 APU_CONFIG = $(shell $(APXS) -q APU_CONFIG)
-APR_CFLAGS = $(shell $(APR_CONFIG) --cflags --cppflags --includes) -Wall -Werror -Wno-unused-function
+APR_CFLAGS = $(shell $(APR_CONFIG) --cflags --cppflags --includes) -Wall -Werror -Wno-unused-function -Qunused-arguments
 APU_CFLAGS = $(shell $(APU_CONFIG) --includes)
 HTTPD_CFLAGS = $(shell $(APXS) -q CFLAGS) -I $(shell $(APXS) -q INCLUDEDIR)
 
