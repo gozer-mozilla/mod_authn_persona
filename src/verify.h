@@ -24,7 +24,7 @@
 #include "http_request.h"       /* for ap_hook_(check_user_id | auth_checker) */
 #include "apr_base64.h"
 
-#include <json/json.h>
+#include <json.h>
 
 typedef struct _VerifyResult
 {

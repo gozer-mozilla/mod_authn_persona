@@ -18,7 +18,7 @@
 #include "cookie.h"
 #include "defines.h"
 
-#include <json/json.h>
+#include <json.h>
 
 /* Cookies can't include the characters ';','=', so Base64 Encoding
  * isn't safe, base64url, however, is (RFC4648)
