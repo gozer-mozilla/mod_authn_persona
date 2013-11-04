@@ -41,6 +41,52 @@
 
 #include <json-c/json.h>
 
+/* Cookies can't include the characters ';','=', so Base64 Encoding
+ * isn't safe, base64url, however, is (RFC4648)
+ */
+static char *cookie_base64urlescape(apr_pool_t *p, const char *src)
+{
+  char *encoded = apr_pstrdup(p, src);
+  
+  char *c;
+  
+  for (c=encoded; *c; c++) {
+    switch(*c) {
+      case '=':
+        *c = 0;
+	break;
+      case '+':
+        *c = '-';
+	break;
+      case '/':
+        *c = '_';
+	break;
+    }
+  }
+  
+  return encoded;
+}
+
+static char *cookie_base64_urlunescape(apr_pool_t *p, const char *src)
+{
+  char *decoded = apr_pstrdup(p, src);
+  
+  char *c;
+  
+  for (c=decoded; *c; c++) {
+    switch(*c) {
+      case '-':
+        *c = '+';
+	break;
+      case '_':
+        *c = '/';
+	break;
+    }
+  }
+  
+  return decoded;
+}
+
 /** Generates a HMAC with the given inputs, returning a Base64-encoded
  * signature value. */
 static char *generateHMAC(request_rec *r, const buffer_t *secret, const char *data)
