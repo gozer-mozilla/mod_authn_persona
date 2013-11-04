@@ -44,52 +44,53 @@
 /* Cookies can't include the characters ';','=', so Base64 Encoding
  * isn't safe, base64url, however, is (RFC4648)
  */
-static char *cookie_base64urlescape(apr_pool_t *p, const char *src)
+static char *cookie_base64urlescape(apr_pool_t * p, const char *src)
 {
   char *encoded = apr_pstrdup(p, src);
-  
+
   char *c;
-  
-  for (c=encoded; *c; c++) {
-    switch(*c) {
-      case '=':
-        *c = 0;
-	break;
-      case '+':
-        *c = '-';
-	break;
-      case '/':
-        *c = '_';
-	break;
+
+  for (c = encoded; *c; c++) {
+    switch (*c) {
+    case '=':
+      *c = 0;
+      break;
+    case '+':
+      *c = '-';
+      break;
+    case '/':
+      *c = '_';
+      break;
     }
   }
-  
+
   return encoded;
 }
 
-static char *cookie_base64_urlunescape(apr_pool_t *p, const char *src)
+static char *cookie_base64_urlunescape(apr_pool_t * p, const char *src)
 {
   char *decoded = apr_pstrdup(p, src);
-  
+
   char *c;
-  
-  for (c=decoded; *c; c++) {
-    switch(*c) {
-      case '-':
-        *c = '+';
-	break;
-      case '_':
-        *c = '/';
-	break;
+
+  for (c = decoded; *c; c++) {
+    switch (*c) {
+    case '-':
+      *c = '+';
+      break;
+    case '_':
+      *c = '/';
+      break;
     }
   }
-  
+
   return decoded;
 }
 
 /** Generates a HMAC with the given inputs, returning a Base64-encoded
  * signature value. */
-static char *generateHMAC(request_rec *r, const buffer_t *secret, const char *data)
+static char *generateHMAC(request_rec *r, const buffer_t *secret,
+                          const char *data)
 {
   unsigned char digest[HMAC_DIGESTSIZE];
   char *digest64;
@@ -152,22 +153,22 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
 {
   char *digest64 = apr_pstrdup(r->pool, szCookieValue);
   char *cookie_payload;
-  
+
   /* split at | */
   char *delim = strchr(digest64, '|');
-  
+
   if (!delim) {
     ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
                   ERRTAG "invalid Persona cookie (tamper?)");
     return NULL;
   }
-  
+
   /* Truncate at the delimiter, now digest64 is the checksum */
   *delim = '\0';
-  
+
   /* And cookie_payload is the JSON payload */
-  cookie_payload = delim+1;
-  
+  cookie_payload = delim + 1;
+
   char *computed_digest64 = generateHMAC(r, secret, cookie_payload);
   computed_digest64 = cookie_base64urlescape(r->pool, computed_digest64);
 
@@ -176,21 +177,23 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
                   ERRTAG "invalid Persona cookie, HMAC mismatch (tamper?)");
     return NULL;
   }
-  
+
   enum json_tokener_error jerr;
-  const char *cookie_string = cookie_base64_urlunescape(r->pool, cookie_payload);
+  const char *cookie_string =
+    cookie_base64_urlunescape(r->pool, cookie_payload);
   cookie_string = ap_pbase64decode(r->pool, cookie_string);
-  
+
   json_object *jcookie = json_tokener_parse_verbose(cookie_string, &jerr);
-  
+
   /* This is very unlikely, we are parsing what we know for sure we have generated */
   if (jerr != json_tokener_success) {
     ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
-                  ERRTAG "Error parsing JSON in verified cookie : %s", json_tokener_error_desc(jerr));
+                  ERRTAG "Error parsing JSON in verified cookie : %s",
+                  json_tokener_error_desc(jerr));
   }
 
   Cookie c = apr_pcalloc(r->pool, sizeof(struct _Cookie));
- 
+
   json_object *expires = json_object_object_get(jcookie, "expires");
   // Verify the cookie is still valid
   if (expires && json_object_is_type(expires, json_type_int)) {
@@ -200,12 +203,12 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
     if (expiry > 0) {
       apr_time_t now = apr_time_now();
       if (now >= expiry) {
-	char when[APR_RFC822_DATE_LEN];
-	apr_rfc822_date(when, expiry);
-	ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-		      ERRTAG "Persona cookie expired on %s", when);
-	json_object_put(jcookie);
-	return NULL;
+        char when[APR_RFC822_DATE_LEN];
+        apr_rfc822_date(when, expiry);
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                      ERRTAG "Persona cookie expired on %s", when);
+        json_object_put(jcookie);
+        return NULL;
       }
     }
   }
@@ -221,7 +224,7 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
   }
 
   json_object_put(jcookie);
-  
+
   return c;
 }
 
@@ -257,8 +260,9 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   char *domain = "";
   char *secure = "";
   json_object *jcookie = json_object_new_object();
-  
-  json_object_object_add(jcookie, "v", json_object_new_int(PERSONA_COOKIE_VERSION));
+
+  json_object_object_add(jcookie, "v",
+                         json_object_new_int(PERSONA_COOKIE_VERSION));
 
   if (cookie->path) {
     path = apr_pstrcat(r->pool, "Path=", cookie->path, ";", NULL);
@@ -271,7 +275,8 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
     max_age =
       apr_pstrcat(r->pool, "Max-Age=", apr_itoa(r->pool, cookie->expires),
                   ";", NULL);
-    json_object_object_add(jcookie, "expires", json_object_new_int64(apr_time_sec(duration)));
+    json_object_object_add(jcookie, "expires",
+                           json_object_new_int64(apr_time_sec(duration)));
   }
 
   if (cookie->domain) {
@@ -281,17 +286,23 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   if (cookie->secure) {
     secure = "Secure;";
   }
-  
-  json_object_object_add(jcookie, "email", json_object_new_string(cookie->verifiedEmail));
-  json_object_object_add(jcookie, "issuer", json_object_new_string(cookie->identityIssuer));
-  
-  char *jcookie_string = apr_pstrdup(r->pool, json_object_to_json_string_ext(jcookie, JSON_C_TO_STRING_PLAIN));
+
+  json_object_object_add(jcookie, "email",
+                         json_object_new_string(cookie->verifiedEmail));
+  json_object_object_add(jcookie, "issuer",
+                         json_object_new_string(cookie->identityIssuer));
+
+  char *jcookie_string =
+    apr_pstrdup(r->pool,
+                json_object_to_json_string_ext(jcookie,
+                                               JSON_C_TO_STRING_PLAIN));
   const char *jcookie_base64u = ap_pbase64encode(r->pool, jcookie_string);
-  const char *jcookie_base64 = cookie_base64urlescape(r->pool, jcookie_base64u);
-  
+  const char *jcookie_base64 =
+    cookie_base64urlescape(r->pool, jcookie_base64u);
+
   const char *digest64 = generateHMAC(r, secret, jcookie_base64);
   digest64 = cookie_base64urlescape(r->pool, digest64);
-  
+
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
                 ERRTAG "JSON cookie payload: %s", jcookie_string);
 
@@ -309,6 +320,6 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   /* syntax of cookie is identity|signature */
   apr_table_set(r->err_headers_out, "Set-Cookie", cookie_payload);
   apr_table_set(r->headers_out, "Set-Cookie", cookie_payload);
-  
+
   json_object_put(jcookie);
 }

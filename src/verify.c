@@ -311,7 +311,9 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
   if (!res->identityIssuer) {
     res->errorResponse = apr_pstrdup(r->pool, "Missing issuer in assertion");
   }
-  if (res->audience && strncmp(res->audience, r->server->server_hostname, strlen(r->server->server_hostname)) != 0) {
+  if (res->audience
+      && strncmp(res->audience, r->server->server_hostname,
+                 strlen(r->server->server_hostname)) != 0) {
     res->errorResponse =
       apr_psprintf(r->pool, "Audience %s doesn't match %s", res->audience,
                    r->server->server_hostname);
