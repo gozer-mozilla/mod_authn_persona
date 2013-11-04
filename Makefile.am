@@ -9,11 +9,12 @@ EXTRA_DIST=t README.md ChangeLog build/mod_authn_persona.spec build/test.pl .ind
 
 APR_CONFIG = $(shell $(APXS) -q APR_CONFIG)
 APU_CONFIG = $(shell $(APXS) -q APU_CONFIG)
-APR_CFLAGS = $(shell $(APR_CONFIG) --cflags --cppflags --includes) -Wall -Werror -Wno-unused-function -Qunused-arguments
+APR_CFLAGS = $(shell $(APR_CONFIG) --cflags --cppflags --includes)
 APU_CFLAGS = $(shell $(APU_CONFIG) --includes)
+
 HTTPD_CFLAGS = $(shell $(APXS) -q CFLAGS) -I $(shell $(APXS) -q INCLUDEDIR)
 
-AM_CFLAGS = -Isrc $(HTTPD_CFLAGS) $(APR_CFLAGS) $(APU_CFLAGS) $(JSON_CFLAGS) $(LIBCURL_CPPFLAGS) $(OPENSSL_INCLUDES) 
+AM_CFLAGS = -Isrc $(HTTPD_CFLAGS) $(APR_CFLAGS) $(APU_CFLAGS) $(JSON_CFLAGS) $(LIBCURL_CPPFLAGS) $(OPENSSL_INCLUDES) $(WARN_CFLAGS)
 
 mod_authn_persona_la_SOURCES = src/mod_authn_persona.c src/cookie.c src/verify.c src/hmac.c src/cookie.h src/defines.h src/verify.h src/hmac.h src/version.h
 BUILT_SOURCES = src/version.h
