@@ -138,7 +138,7 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
   if (expiry && json_object_is_type(expiry, json_type_int)) {
     int64_t expiry_time = json_object_get_int64(expiry);
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                  ERRTAG "Expiry is %ld", expiry_time);
+                  ERRTAG "Expiry is %lld", expiry_time);
   }
 
   /* Fake success */
@@ -257,24 +257,24 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
     const char *key = json_object_iter_peek_name(&it);
     json_object *val = json_object_iter_peek_value(&it);
 
-    if (strcmp("email", key) == 0) {
+    if (strncmp("email", key, 6) == 0) {
       res->verifiedEmail = apr_pstrdup(r->pool, json_object_get_string(val));
     }
-    else if (strcmp("issuer", key) == 0) {
+    else if (strncmp("issuer", key, 7) == 0) {
       res->identityIssuer = apr_pstrdup(r->pool, json_object_get_string(val));
     }
-    else if (strcmp("audience", key) == 0) {
+    else if (strncmp("audience", key, 9) == 0) {
       res->audience = apr_pstrdup(r->pool, json_object_get_string(val));
     }
-    else if (strcmp("expires", key) == 0) {
+    else if (strncmp("expires", key, 8) == 0) {
       apr_time_ansi_put(&res->expires, json_object_get_int64(val) / 1000);
     }
-    else if (strcmp("reason", key) == 0) {
+    else if (strncmp("reason", key, 7) == 0) {
       reason = json_object_get_string(val);
     }
-    else if (strcmp("status", key) == 0) {
+    else if (strncmp("status", key, 7) == 0) {
       status = json_object_get_string(val);
-      if (strcmp("okay", status) == 0) {
+      if (strncmp("okay", status, 5) == 0) {
         success = 1;
       }
     }
@@ -290,7 +290,9 @@ VerifyResult processAssertion(request_rec *r, const char *verifier_url,
   if (!res->identityIssuer) {
     res->errorResponse = apr_pstrdup(r->pool, "Missing issuer in assertion");
   }
-  if (res->audience && strcmp(res->audience, r->server->server_hostname) != 0) {
+  if (res->audience
+      && strncmp(res->audience, r->server->server_hostname,
+                 strlen(r->server->server_hostname)) != 0) {
     res->errorResponse =
       apr_psprintf(r->pool, "Audience %s doesn't match %s", res->audience,
                    r->server->server_hostname);

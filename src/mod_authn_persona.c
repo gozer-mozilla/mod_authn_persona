@@ -169,9 +169,11 @@ static int Auth_persona_check_cookie(request_rec *r)
       }
 
       /* Logged-in user is visiting the logout url */
-      if (dconf->logout_url && strcmp(dconf->logout_url, r->uri) == 0) {
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r, ERRTAG
-                      "User '%s' logging out via '%s', sending to %s",
+      if (dconf->logout_url
+          && strncmp(dconf->logout_url, r->uri,
+                     strlen(dconf->logout_url) + 1) == 0) {
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                      ERRTAG "User '%s' logging out via '%s', sending to %s",
                       r->user, r->uri, dconf->logout_returnto_url);
         apr_table_setn(r->subprocess_env, PERSONA_ENV_LOGOUT_RETURNTO,
                        dconf->logout_returnto_url);
@@ -240,10 +242,10 @@ static int Auth_persona_check_auth(request_rec *r)
     szRequire_cmd = ap_getword_white(r->pool, &szRequireLine);
 
     // persona-idp: check host part of user name
-    if (!strcmp("persona-idp", szRequire_cmd)) {
+    if (!strncmp("persona-idp", szRequire_cmd, 12)) {
       char *reqIdp = ap_getword_conf(r->pool, &szRequireLine);
       const char *issuer = apr_table_get(r->notes, PERSONA_ISSUER_NOTE);
-      if (!issuer || strcmp(issuer, reqIdp)) {
+      if (!issuer || strncmp(issuer, reqIdp, strlen(reqIdp) + 1)) {
         ap_log_rerror(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, r,
                       ERRTAG
                       "user '%s' is not authorized by idp:%s, but idp:%s instead",
@@ -285,8 +287,8 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
       persona_generate_secret(pconf, sp, conf);
       ap_log_error(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, sp,
                    ERRTAG
-                   "created a secret since none was configured for %s (AuthPersonaServerSecret %s)",
-                   sp->server_hostname, conf->secret->data);
+                   "created a secret since none was configured for %s",
+                   sp->server_hostname);
     }
   }
 
@@ -316,8 +318,6 @@ static apr_status_t persona_generate_secret(apr_pool_t * p, server_rec *s,
   status = apr_generate_random_bytes(secret, conf->secret_size);
 
   if (APR_SUCCESS == status) {
-    /* Turn into printable */
-    secret = (unsigned char *) ap_pbase64encode(p, (char *) secret);
     /* Truncate to right length */
     secret[conf->secret_size] = 0;
     conf->secret->data = (char *) secret;

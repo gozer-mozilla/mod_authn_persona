@@ -24,6 +24,8 @@ LIBCURL_CHECK_CONFIG([],[],[],[
     AC_MSG_ERROR([libcurl is required])
 ])
 
+CHECK_SSL([],[AC_MSG_ERROR([openssl is required])])
+
 PKG_CHECK_MODULES([JSON], [json])
 
 AC_PROG_PERL_VERSION(5.8.0)
@@ -31,5 +33,18 @@ AC_PERL_MODULE_VERSION(Apache::Test 0, , AC_MSG_ERROR(Need some Perl modules))
 AC_C_CONST
 
 AM_MAINTAINER_MODE
+
+dnl Test compiler warning flags
+AC_SUBST(WARN_CFLAGS)
+
+AX_CHECK_COMPILE_FLAG(-Wall, [WARN_CFLAGS="$WARN_CFLAGS -Wall"])
+AX_CHECK_COMPILE_FLAG(-Werror, [WARN_CFLAGS="$WARN_CFLAGS -Werror"])
+
+dnl We have some in progress, it's okay
+AX_CHECK_COMPILE_FLAG(-Wno-unused-function, [WARN_CFLAGS="$WARN_CFLAGS -Wno-unused-function"])
+
+dnl On OS X, this causes problems with unused -I flags
+AX_CHECK_COMPILE_FLAG(-Qunused-arguments, [WARN_CFLAGS="$WARN_CFLAGS -Qunused-arguments"])
+
 
 AC_OUTPUT(Makefile)

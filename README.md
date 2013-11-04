@@ -45,6 +45,7 @@ Dependencies
 * apache 2.0.x or 2.2.x (mostly tested with 2.2 so far)
 * libcurl 7.10.8 or later
 * json-c
+* OpenSSL
 
 # Features
 
@@ -88,6 +89,9 @@ Further configuration settings
 * `AuthPersonaCookieSecure`: (default: Off)
 
   If the cookie should be limited to SSL connections or not
+  
+  Sending this cookie via non-SSL connections is dangereous, as stealing this
+  cookie steals your identity.
 
 * `AuthPersonaCookieDuration`: (default: 1 day)
 

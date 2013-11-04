@@ -12,8 +12,8 @@ Packager:       Philippe M. Chiasson <gozer@ectoplasm.org>
 Source:         https://people.mozilla.org/~pchiasson/dist/%{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  httpd-devel, pkgconfig, perl(Apache::Test), json-c-devel
-Requires:       httpd, json-c
+BuildRequires:  httpd-devel, pkgconfig, perl(Apache::Test), json-c-devel, openssl-devel
+Requires:       httpd, json-c, openssl
 
 %description
 This modules allows for Apache to authenticate users against Mozilla's Persona.
@@ -66,11 +66,12 @@ Alias /logout.shtml /usr/share/@PACKAGE@/logout.shtml
 </Location>
 
 #AuthPersonaServerSecret SomeVerySecretPassword
+# Sending cookies via http is a security risk, they could be stolen
+AuthPersonaCookieSecure On
 #<Location />
 #  AuthType Persona
 #  require valid-user
 #</Location>
-
 
 EOF
 
