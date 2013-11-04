@@ -138,7 +138,7 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
   if (expiry && json_object_is_type(expiry, json_type_int)) {
     int64_t expiry_time = json_object_get_int64(expiry);
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
-                  ERRTAG "Expiry is %" APR_INT64_T_FMT , expiry_time);
+                  ERRTAG "Expiry is %" APR_INT64_T_FMT, expiry_time);
   }
 
   /* Fake success */

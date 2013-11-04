@@ -271,10 +271,9 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   json_object_object_add(jcookie, "issuer",
                          json_object_new_string(cookie->identityIssuer));
 
-  char *jcookie_string =
-    apr_pstrdup(r->pool,
-                json_object_to_json_string_ext(jcookie,
-                                               JSON_C_TO_STRING_PLAIN));
+  char *jcookie_string = apr_pstrdup(r->pool,
+                                     json_object_to_json_string_ext(jcookie,
+                                                                    JSON_C_TO_STRING_PLAIN));
   const char *jcookie_base64u = ap_pbase64encode(r->pool, jcookie_string);
   const char *jcookie_base64 =
     cookie_base64urlescape(r->pool, jcookie_base64u);
