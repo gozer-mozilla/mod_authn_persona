@@ -169,6 +169,7 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
   cookie_payload = delim+1;
   
   char *computed_digest64 = generateHMAC(r, secret, cookie_payload);
+  computed_digest64 = cookie_base64urlescape(r->pool, computed_digest64);
 
   if (strncmp(digest64, computed_digest64, strlen(computed_digest64))) {
     ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
@@ -177,7 +178,10 @@ Cookie validateCookie(request_rec *r, const buffer_t *secret,
   }
   
   enum json_tokener_error jerr;
-  json_object *jcookie = json_tokener_parse_verbose(cookie_payload, &jerr);
+  const char *cookie_string = cookie_base64_urlunescape(r->pool, cookie_payload);
+  cookie_string = ap_pbase64decode(r->pool, cookie_string);
+  
+  json_object *jcookie = json_tokener_parse_verbose(cookie_string, &jerr);
   
   /* This is very unlikely, we are parsing what we know for sure we have generated */
   if (jerr != json_tokener_success) {
@@ -281,14 +285,18 @@ void sendSignedCookie(request_rec *r, const buffer_t *secret,
   json_object_object_add(jcookie, "email", json_object_new_string(cookie->verifiedEmail));
   json_object_object_add(jcookie, "issuer", json_object_new_string(cookie->identityIssuer));
   
-  const char *jcookie_string = json_object_to_json_string_ext(jcookie, JSON_C_TO_STRING_PLAIN);
-  const char *digest64 = generateHMAC(r, secret, jcookie_string);
+  char *jcookie_string = apr_pstrdup(r->pool, json_object_to_json_string_ext(jcookie, JSON_C_TO_STRING_PLAIN));
+  const char *jcookie_base64u = ap_pbase64encode(r->pool, jcookie_string);
+  const char *jcookie_base64 = cookie_base64urlescape(r->pool, jcookie_base64u);
+  
+  const char *digest64 = generateHMAC(r, secret, jcookie_base64);
+  digest64 = cookie_base64urlescape(r->pool, digest64);
   
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
                 ERRTAG "JSON cookie payload: %s", jcookie_string);
 
   char *cookie_buf = apr_psprintf(r->pool, "%s=%s|%s",
-                                  cookie_name, digest64, jcookie_string);
+                                  cookie_name, digest64, jcookie_base64);
   char *cookie_flags = apr_psprintf(r->pool, ";HttpOnly;Version=1;%s%s%s%s",
                                     path, domain, max_age, secure);
 

@@ -1,4 +1,5 @@
 0.3
+ * Cookies are now Base64URL encoded, no more plain JSON visible
  * Working test suite, via http://personatestuser.org/
  * Require openssl
  * Get rid of custom HMAC implementation in favor of OpenSSL's (upgrade to
