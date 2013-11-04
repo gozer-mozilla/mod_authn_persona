@@ -30,6 +30,9 @@ PKG_CHECK_MODULES([JSON], [json])
 
 AC_PROG_PERL_VERSION(5.8.0)
 AC_PERL_MODULE_VERSION(Apache::Test 0, , AC_MSG_ERROR(Need some Perl modules))
+AC_PERL_MODULE_VERSION(URI::Escape 0, , AC_MSG_ERROR(Need URI::Escape Perl modules))
+AC_PERL_MODULE_VERSION(HTTP::Cookies 0, , AC_MSG_ERROR(Need HTTP::Cookies Perl modules))
+AC_PERL_MODULE_VERSION(Test::More 0.94, , AC_MSG_ERROR(Need Test::More >= 0.94 Perl modules))
 AC_C_CONST
 
 AM_MAINTAINER_MODE
