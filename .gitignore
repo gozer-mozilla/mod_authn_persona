@@ -38,6 +38,10 @@ mod_authn_persona.la
 src/.libs/
 src/*.lo
 
+#Kdevelop
+.kdev?
+src/.kdev_include_paths
+
 #Tests
 t/TEST
 t/conf/apache_test_config.pm
