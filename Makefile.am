@@ -5,7 +5,18 @@ module_LTLIBRARIES = mod_authn_persona.la
 
 moduledir = $(shell $(APXS) -q LIBEXECDIR)
 
-EXTRA_DIST=t README.md ChangeLog build/mod_authn_persona.spec build/test.pl .indent.pro
+EXTRA_DIST=t/htdocs/logout.shtml \
+ t/htdocs/testidp.shtml \
+ t/htdocs/login.shtml \
+ t/conf/extra.conf.in \
+ README.md \
+ ChangeLog \
+ build/mod_authn_persona.spec \
+ build/test.pl \
+ .indent.pro
+
+CLEANFILES=t/logs/access_log t/logs/error_log 
+DISTCLEANFILES=t/htdocs/index.html t/TEST t/conf/extra.conf t/conf/httpd.conf t/conf/apache_test_config.pm
 
 APR_CONFIG = $(shell $(APXS) -q APR_CONFIG)
 APU_CONFIG = $(shell $(APXS) -q APU_CONFIG)
