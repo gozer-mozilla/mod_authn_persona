@@ -24,7 +24,7 @@
 #include "defines.h"
 #include "hmac.h"
 
-#define PERSONA_COOKIE_VERSION 1
+#define PERSONA_COOKIE_VERSION 2
 
 typedef struct _Cookie
 {
