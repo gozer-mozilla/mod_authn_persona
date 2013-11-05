@@ -106,6 +106,20 @@ static int Auth_persona_check_cookie(request_rec *r)
   // We'll trade you a valid assertion for a session cookie!
   // this is a programatic XHR request
   if (assertion) {
+
+     /* null assertion is a form of logout */
+    if (!strncmp(assertion, "null", 5)) {
+      /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
+      Cookie cookie = apr_pcalloc(r->pool, sizeof(*cookie));
+      cookie->path = dconf->location;
+      clearCookie(r, conf->secret, dconf->cookie_name, cookie);
+      r->status = HTTP_OK;
+      const char *status = "{\"status\": \"okay\"}";
+      ap_set_content_type(r, "application/json");
+      ap_rwrite(status, strlen(status), r);
+      return DONE;
+    }
+  
     VerifyResult res;
     if (dconf->local_verify) {
       res = verify_assertion_local(r, assertion);
