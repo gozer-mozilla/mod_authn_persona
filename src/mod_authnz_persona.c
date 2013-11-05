@@ -321,6 +321,11 @@ static authz_status persona_idp_check_authorization(request_rec *r,
   return issuer && !strcmp(issuer, reqIdp) ? AUTHZ_GRANTED : AUTHZ_DENIED;
 }
 
+static const authz_provider authz_persona_idp_provider =
+{
+  &persona_idp_check_authorization,
+  NULL,
+};
 #endif
 
 static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
@@ -348,11 +353,6 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
 /**************************************************
  * register module hooks
  **************************************************/
-static const authz_provider authz_persona_idp_provider =
-{
-  &persona_idp_check_authorization,
-  NULL,
-};
 
 static void register_hooks(apr_pool_t *p)
 {
