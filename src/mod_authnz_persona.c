@@ -22,6 +22,10 @@
 #include <http_protocol.h>
 #include <http_request.h>       /* for ap_hook_(check_user_id | auth_checker) */
 #include <apr_base64.h>
+#if AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
+#include "ap_provider.h"
+#include "mod_auth.h"
+#endif
 
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -30,7 +34,7 @@
 #include "version.h"
 
 /* apache module name */
-module AP_MODULE_DECLARE_DATA authn_persona_module;
+module AP_MODULE_DECLARE_DATA authnz_persona_module;
 
 const char *persona_server_secret_option(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_name(cmd_parms *, void *, const char *);
@@ -77,7 +81,9 @@ static void set_cookie_from_config(persona_dir_config_t * dconf,
 /**************************************************
  * Authentication phase
  *
- * Pull the cookie from the header and verify it.
+ * - If AuthType != Persona, do nothing
+ * - Handle POSTed assertions ("null" -> logout)
+ * - If we have a cookie, set up user context
  **************************************************/
 static int Auth_persona_check_cookie(request_rec *r)
 {
@@ -89,9 +95,9 @@ static int Auth_persona_check_cookie(request_rec *r)
   }
 
   persona_config_t *conf =
-    ap_get_module_config(r->server->module_config, &authn_persona_module);
+    ap_get_module_config(r->server->module_config, &authnz_persona_module);
   persona_dir_config_t *dconf =
-    ap_get_module_config(r->per_dir_config, &authn_persona_module);
+    ap_get_module_config(r->per_dir_config, &authnz_persona_module);
 
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
@@ -104,8 +110,22 @@ static int Auth_persona_check_cookie(request_rec *r)
   }
 
   // We'll trade you a valid assertion for a session cookie!
-  // this is a programatic XHR request
+  // this is a programmatic XHR request
   if (assertion) {
+
+     /* null assertion is a form of logout */
+    if (!strncmp(assertion, "null", 5)) {
+      /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
+      Cookie cookie = apr_pcalloc(r->pool, sizeof(*cookie));
+      cookie->path = dconf->location;
+      clearCookie(r, conf->secret, dconf->cookie_name, cookie);
+      r->status = HTTP_OK;
+      const char *status = "{\"status\": \"okay\"}";
+      ap_set_content_type(r, "application/json");
+      ap_rwrite(status, strlen(status), r);
+      return DONE;
+    }
+  
     VerifyResult res;
     if (dconf->local_verify) {
       res = verify_assertion_local(r, assertion);
@@ -152,7 +172,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     }
   }
 
-  // if there's a valid cookie, allow the user throught
+  // if there's a valid cookie, allow the user through
   szCookieValue = extractCookie(r, conf->secret, dconf->cookie_name);
 
   Cookie cookie = NULL;
@@ -193,13 +213,14 @@ static int Auth_persona_check_cookie(request_rec *r)
   return HTTP_UNAUTHORIZED;
 }
 
+#if !AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
 
 /**************************************************
- * Authentication hook for Apache
+ * Authorization phase (Apache 2.2)
  *
- * If the cookie is present, extract it and verify it.
+ * Requires authentication phase to run first.
  *
- * if it is valid, apply per-resource authorization rules.
+ * Handles Require persona-idp directives.
  **************************************************/
 static int Auth_persona_check_auth(request_rec *r)
 {
@@ -214,7 +235,7 @@ static int Auth_persona_check_auth(request_rec *r)
   }
 
   persona_dir_config_t *dconf =
-    ap_get_module_config(r->per_dir_config, &authn_persona_module);
+    ap_get_module_config(r->per_dir_config, &authnz_persona_module);
 
   apr_table_set(r->err_headers_out, "X-Mod-Auth-Persona", VERSION);
 
@@ -275,6 +296,33 @@ static int Auth_persona_check_auth(request_rec *r)
   }
 }
 
+#else
+
+/**************************************************
+ * Authorization phase (Apache 2.4)
+ *
+ * Handles Require persona-idp directives.
+ *
+ * When this is first called, the authentication context hasn't been setup
+ * yet. Return AUTHZ_DENIED_NO_USER to force it to run, then this will be
+ * called again, with the context setup.
+ **************************************************/
+static authz_status persona_idp_check_authorization(request_rec *r,
+                                                    const char *require_args,
+                                                    const void *parsed_require_args) {
+
+  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Require persona-idp");
+  if (!r->user)
+    // this triggers running authn hook, which we need
+    return AUTHZ_DENIED_NO_USER;
+
+  char *reqIdp = ap_getword_white(r->pool, &require_args);
+  const char *issuer = apr_table_get(r->notes, PERSONA_ISSUER_NOTE);
+  return issuer && !strcmp(issuer, reqIdp) ? AUTHZ_GRANTED : AUTHZ_DENIED;
+}
+
+#endif
+
 static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
                                     apr_pool_t * ptemp, server_rec *s)
 {
@@ -282,7 +330,7 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
   persona_config_t *conf;
 
   for (sp = s; sp; sp = sp->next) {
-    conf = ap_get_module_config(sp->module_config, &authn_persona_module);
+    conf = ap_get_module_config(sp->module_config, &authnz_persona_module);
     if (!conf->secret->len) {
       persona_generate_secret(pconf, sp, conf);
       ap_log_error(APLOG_MARK, APLOG_INFO | APLOG_NOERRNO, 0, sp,
@@ -300,12 +348,25 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
 /**************************************************
  * register module hooks
  **************************************************/
-static void register_hooks(apr_pool_t * p)
+static const authz_provider authz_persona_idp_provider =
 {
-  // these hooks are are executed in order, first is first.
-  ap_hook_check_user_id(Auth_persona_check_cookie, NULL, NULL,
-                        APR_HOOK_FIRST);
+  &persona_idp_check_authorization,
+  NULL,
+};
+
+static void register_hooks(apr_pool_t *p)
+{
+  // these hooks are executed in order, first is first.
+#if AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
+  ap_hook_check_authn(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST,
+                      AP_AUTH_INTERNAL_PER_CONF);
+  ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "persona-idp",
+                            AUTHZ_PROVIDER_VERSION, &authz_persona_idp_provider,
+                            AP_AUTH_INTERNAL_PER_CONF);
+#else
+  ap_hook_check_user_id(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST);
   ap_hook_auth_checker(Auth_persona_check_auth, NULL, NULL, APR_HOOK_FIRST);
+#endif
   ap_hook_post_config(Auth_persona_post_config, NULL, NULL, APR_HOOK_MIDDLE);
 }
 
@@ -372,7 +433,7 @@ const char *persona_server_secret_option(cmd_parms *cmd, void *cfg,
 {
   server_rec *s = cmd->server;
   persona_config_t *conf =
-    ap_get_module_config(s->module_config, &authn_persona_module);
+    ap_get_module_config(s->module_config, &authnz_persona_module);
   conf->secret->len = strlen(arg);
   conf->secret->data = apr_palloc(cmd->pool, conf->secret->len);
   strncpy(conf->secret->data, arg, conf->secret->len);
@@ -560,7 +621,7 @@ static const command_rec Auth_persona_options[] = {
 };
 
 /* apache module structure */
-module AP_MODULE_DECLARE_DATA authn_persona_module = {
+module AP_MODULE_DECLARE_DATA authnz_persona_module = {
   STANDARD20_MODULE_STUFF,
   persona_create_dir_config,    /* dir config creator */
   persona_merge_dir_config,     /* dir merger --- default is to override */

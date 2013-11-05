@@ -1,4 +1,4 @@
-LoadModule authn_persona_module @ServerRoot@/../.libs/mod_authn_persona.so
+LoadModule authnz_persona_module @ServerRoot@/../.libs/mod_authnz_persona.so
 
 AuthPersonaCookieName   Test-Persona
 #AuthPersonaCookieDomain .localhost.localdomain

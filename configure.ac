@@ -1,5 +1,5 @@
 AC_PREREQ(2.60)
-AC_INIT(mod_authn_persona, 0.4, gozer@mozilla.com)
+AC_INIT(mod_authnz_persona, 0.4, gozer@mozilla.com)
 AC_CONFIG_AUX_DIR(build)
 AC_CONFIG_MACRO_DIR([build])
 
@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([build/mod_authn_persona.spec src/version.h])
+AC_CONFIG_FILES([build/mod_authnz_persona.spec src/version.h])
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
