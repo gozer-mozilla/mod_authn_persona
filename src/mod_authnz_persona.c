@@ -22,6 +22,10 @@
 #include <http_protocol.h>
 #include <http_request.h>       /* for ap_hook_(check_user_id | auth_checker) */
 #include <apr_base64.h>
+#if AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
+#include "ap_provider.h"
+#include "mod_auth.h"
+#endif
 
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -207,6 +211,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   return HTTP_UNAUTHORIZED;
 }
 
+#if !AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
 
 /**************************************************
  * Authentication hook for Apache
@@ -289,6 +294,24 @@ static int Auth_persona_check_auth(request_rec *r)
   }
 }
 
+#else
+
+/* authorization check for Apache 2.4+ */
+static authz_status persona_idp_check_authorization(request_rec *r,
+                                                    const char *require_args,
+                                                    const void *parsed_require_args) {
+
+  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Require persona-idp");
+  if (!r->user)
+    return AUTHZ_DENIED_NO_USER;
+
+  char *reqIdp = ap_getword_white(r->pool, &require_args);
+  const char *issuer = apr_table_get(r->notes, PERSONA_ISSUER_NOTE);
+  return issuer && !strcmp(issuer, reqIdp) ? AUTHZ_GRANTED : AUTHZ_DENIED;
+}
+
+#endif
+
 static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
                                     apr_pool_t * ptemp, server_rec *s)
 {
@@ -314,12 +337,25 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
 /**************************************************
  * register module hooks
  **************************************************/
-static void register_hooks(apr_pool_t * p)
+static const authz_provider authz_persona_idp_provider =
+{
+  &persona_idp_check_authorization,
+  NULL,
+};
+
+static void register_hooks(apr_pool_t *p)
 {
   // these hooks are are executed in order, first is first.
-  ap_hook_check_user_id(Auth_persona_check_cookie, NULL, NULL,
-                        APR_HOOK_FIRST);
+#if AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
+  ap_hook_check_authn(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST,
+                      AP_AUTH_INTERNAL_PER_CONF);
+  ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "persona-idp",
+                            AUTHZ_PROVIDER_VERSION, &authz_persona_idp_provider,
+                            AP_AUTH_INTERNAL_PER_CONF);
+#else
+  ap_hook_check_user_id(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST);
   ap_hook_auth_checker(Auth_persona_check_auth, NULL, NULL, APR_HOOK_FIRST);
+#endif
   ap_hook_post_config(Auth_persona_post_config, NULL, NULL, APR_HOOK_MIDDLE);
 }
 
