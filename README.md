@@ -6,7 +6,7 @@ Installation
 =======================
 
 ```
-git clone https://github.com/mozilla/mod_authnz_persona.git
+git clone https://github.com/gozer-mozilla/mod_authn_persona.git
 cd mod_authnz_persona
 ./buildconf
 ./configure --with-apxs=/usr/sbin/apxs
