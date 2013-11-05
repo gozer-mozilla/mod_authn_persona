@@ -108,7 +108,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   }
 
   // We'll trade you a valid assertion for a session cookie!
-  // this is a programatic XHR request
+  // this is a programmatic XHR request
   if (assertion) {
 
      /* null assertion is a form of logout */
@@ -170,7 +170,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     }
   }
 
-  // if there's a valid cookie, allow the user throught
+  // if there's a valid cookie, allow the user through
   szCookieValue = extractCookie(r, conf->secret, dconf->cookie_name);
 
   Cookie cookie = NULL;
@@ -345,7 +345,7 @@ static const authz_provider authz_persona_idp_provider =
 
 static void register_hooks(apr_pool_t *p)
 {
-  // these hooks are are executed in order, first is first.
+  // these hooks are executed in order, first is first.
 #if AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
   ap_hook_check_authn(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST,
                       AP_AUTH_INTERNAL_PER_CONF);
