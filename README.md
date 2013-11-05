@@ -1,9 +1,26 @@
-mod_authnz_persona is a module for Apache 2.0 or later that
-allows you to quickly add Persona Authentication to a site hosted with
-apache.
+mod_authnz_persona is a module for Apache 2.0 or later that allows you to
+quickly add Persona authentication to a site hosted with Apache.
 
-Installation
-=======================
+# Installation
+
+First, install the dependencies:
+
+* apache 2.2 or later
+* libcurl 7.10.8 or later (for remote verification)
+* yajl 2.0 or later (for JSON parsing)
+
+On Red Hat-derivative distributions, this might help:
+
+```
+yum install httpd httpd-devel curl-devel cmake
+wget http://fedora.mirror.nexicom.net/linux/development/rawhide/source/SRPMS/y/yajl-2.0.4-3.fc20.src.rpm
+rpmbuild --rebuild yajl-*.src.rpm
+sudo yum install ~/rpmbuild/RPMS/`uname -i`/yajl-*.rpm
+```
+
+(CMake is a build-time yajl dependency.)
+
+Then, clone the source and build:
 
 ```
 git clone https://github.com/gozer-mozilla/mod_authn_persona.git
@@ -49,28 +66,27 @@ Dependencies
 
 # Features
 
-* **zero configuration** - The module is designed with reasonable
-    defaults, so you can simply drop it in
-* **automatic re-auth** - The module is designed to use session
-    cookies and automatically re-authenticate.
+* **zero configuration** - The module is designed with reasonable defaults, so
+  you can simply drop it in.
+* **automatic re-auth** - The module is designed to use session cookies and
+  automatically re-authenticate.
 
-# How it Works
+# How it works
 
-The module works by intercepting requests bound for protected
-resources, and checking for the presence of a session cookie.
+The module works by intercepting requests bound for protected resources, and
+checking for the presence of a session cookie.
 
-If the cookie is not found, the user agent is served an HTML document
-that presents a Persona login page.
+If the cookie is not found, the user agent is served an HTML document that
+presents a Persona login page.
 
-Upon successful authentication with Persona, this page will send a
-request to the server with a Persona assertion in an HTTP header.  The
-module, upon detecting no cookie is present, will look for this
-header, validate the assertion, and set a short session cookie.
+Upon successful authentication with Persona, this page will send a request to
+the server with a Persona assertion in an HTTP header. The module, upon
+detecting no cookie is present, will look for this header, validate the
+assertion, and set a short session cookie.
 
 The authentication page will then reload the desired resource.
 
-Further configuration settings
-==============================
+# Further configuration settings
 
 * `AuthPersonaServerSecret`: (default: generated)
   A secret that will be used to sign cookies. Must be set in a server or
