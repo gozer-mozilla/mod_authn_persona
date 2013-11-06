@@ -326,6 +326,7 @@ static const authz_provider authz_persona_idp_provider =
   &persona_idp_check_authorization,
   NULL,
 };
+
 #endif
 
 static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,

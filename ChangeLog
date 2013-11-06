@@ -1,4 +1,5 @@
 0.4
+ * Rename persona header to Persona-Assertion as per RFC 6648
  * Support for httpd-2.4
 0.3 04-Nov-2013
  * Cookies are now Base64URL encoded, no more plain JSON visible
