@@ -117,7 +117,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     if (!strncmp(assertion, "null", 5)) {
       /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
       Cookie cookie = apr_pcalloc(r->pool, sizeof(*cookie));
-      cookie->path = dconf->location;
+      set_cookie_from_config(dconf, cookie);
       clearCookie(r, conf->secret, dconf->cookie_name, cookie);
       r->status = HTTP_OK;
       const char *status = "{\"status\": \"okay\"}";
@@ -205,7 +205,7 @@ static int Auth_persona_check_cookie(request_rec *r)
     else {                      /* cookie didn't validate */
       /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
       cookie = apr_pcalloc(r->pool, sizeof(*cookie));
-      cookie->path = dconf->location;
+      set_cookie_from_config(dconf, cookie);
       clearCookie(r, conf->secret, dconf->cookie_name, cookie);
     }
   }

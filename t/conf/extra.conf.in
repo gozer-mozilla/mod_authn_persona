@@ -1,5 +1,9 @@
 LoadModule authnz_persona_module @ServerRoot@/../.libs/mod_authnz_persona.so
 
+<IfVersion >= 2.4>
+  DefaultRuntimeDir /tmp
+</IfVersion>
+
 AuthPersonaCookieName   Test-Persona
 #AuthPersonaCookieDomain .localhost.localdomain
 #AuthPersonaServerSecret Test123
@@ -15,6 +19,9 @@ AuthPersonaFakeBasicAuth On
     AddType text/html .shtml
     AddOutputFilter INCLUDES .shtml
     Options +Includes 
+    <IfVersion >= 2.4>
+      SSILegacyExprParser On
+    </IfVersion>
    </IfModule>
 </Location>
 
