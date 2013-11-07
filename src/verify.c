@@ -24,6 +24,9 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
+#include <openssl/bn.h>
+#include <openssl/rsa.h>
+
 /* Helper struct for CURL response */
 struct MemoryStruct
 {
@@ -93,6 +96,11 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
   json_object *json_assertions[16];
   enum json_tokener_error jerr;
 
+
+  BIGNUM *pubkey_n = BN_new();
+  BIGNUM *pubkey_e = BN_new();
+  RSA *rsa = RSA_new();
+
   for (i = 0; i < assertion_count; i++) {
     assertions[i] = base64url_decode(r->pool, assertions[i]);
     json_assertions[i] = json_tokener_parse_verbose(assertions[i], &jerr);
@@ -109,6 +117,17 @@ VerifyResult verify_assertion_local(request_rec *r, const char *assertion)
                     json_object_to_json_string(json_assertions[i]));
     }
   }
+  json_object *public_key =  json_object_object_get(json_assertions[1], "public-key");
+  
+  BN_asc2bn(&pubkey_e, json_object_get_string(json_object_object_get(public_key, "e")));
+  BN_asc2bn(&pubkey_n, json_object_get_string(json_object_object_get(public_key, "n")));
+
+  ap_log_rerror(APLOG_MARK, APLOG_DEBUG | APLOG_NOERRNO, 0, r,
+                    ERRTAG "RSA n=%s e=%s", BN_bn2dec(pubkey_n), BN_bn2dec(pubkey_n));
+
+  BN_free(pubkey_e);
+  BN_free(pubkey_n);
+  RSA_free(rsa);
 
   json_object *principal =
     json_object_object_get(json_assertions[1], "principal");
