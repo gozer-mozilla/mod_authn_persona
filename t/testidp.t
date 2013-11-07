@@ -72,7 +72,7 @@ sub basic_flow {
 }
 
 { #Request with assertion
-  my $res = POST "$url", 'X-Persona-Assertion' => $assertion;
+  my $res = POST "$url", 'Persona-Assertion' => $assertion;
   ok t_cmp( $res->code, 200, "$url: Initial request success");
 }
 
@@ -105,7 +105,7 @@ sub basic_flow {
 }
 
 { #Login again with assertion
-  my $res = POST "$url", 'X-Persona-Assertion' => $assertion;
+  my $res = POST "$url", 'Persona-Assertion' => $assertion;
   ok t_cmp( $res->code, 200, "$url: Re-login request success");
 }
 
