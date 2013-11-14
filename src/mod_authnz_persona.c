@@ -113,7 +113,7 @@ static int Auth_persona_check_cookie(request_rec *r)
   // this is a programmatic XHR request
   if (assertion) {
 
-     /* null assertion is a form of logout */
+    /* null assertion is a form of logout */
     if (!strncmp(assertion, "null", 5)) {
       /* XXX: Absctraction not quite right, creating a cookie structure here feels wrong */
       Cookie cookie = apr_pcalloc(r->pool, sizeof(*cookie));
@@ -125,7 +125,7 @@ static int Auth_persona_check_cookie(request_rec *r)
       ap_rwrite(status, strlen(status), r);
       return DONE;
     }
-  
+
     VerifyResult res;
     if (dconf->local_verify) {
       res = verify_assertion_local(r, assertion);
@@ -309,9 +309,12 @@ static int Auth_persona_check_auth(request_rec *r)
  **************************************************/
 static authz_status persona_idp_check_authorization(request_rec *r,
                                                     const char *require_args,
-                                                    const void *parsed_require_args) {
+                                                    const void
+                                                    *parsed_require_args)
+{
 
-  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Require persona-idp");
+  ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
+                ERRTAG "Require persona-idp");
   if (!r->user)
     // this triggers running authn hook, which we need
     return AUTHZ_DENIED_NO_USER;
@@ -321,8 +324,7 @@ static authz_status persona_idp_check_authorization(request_rec *r,
   return issuer && !strcmp(issuer, reqIdp) ? AUTHZ_GRANTED : AUTHZ_DENIED;
 }
 
-static const authz_provider authz_persona_idp_provider =
-{
+static const authz_provider authz_persona_idp_provider = {
   &persona_idp_check_authorization,
   NULL,
 };
@@ -355,17 +357,19 @@ static int Auth_persona_post_config(apr_pool_t * pconf, apr_pool_t * plog,
  * register module hooks
  **************************************************/
 
-static void register_hooks(apr_pool_t *p)
+static void register_hooks(apr_pool_t * p)
 {
   // these hooks are executed in order, first is first.
 #if AP_MODULE_MAGIC_AT_LEAST(20080403, 1)
   ap_hook_check_authn(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST,
                       AP_AUTH_INTERNAL_PER_CONF);
   ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "persona-idp",
-                            AUTHZ_PROVIDER_VERSION, &authz_persona_idp_provider,
+                            AUTHZ_PROVIDER_VERSION,
+                            &authz_persona_idp_provider,
                             AP_AUTH_INTERNAL_PER_CONF);
 #else
-  ap_hook_check_user_id(Auth_persona_check_cookie, NULL, NULL, APR_HOOK_FIRST);
+  ap_hook_check_user_id(Auth_persona_check_cookie, NULL, NULL,
+                        APR_HOOK_FIRST);
   ap_hook_auth_checker(Auth_persona_check_auth, NULL, NULL, APR_HOOK_FIRST);
 #endif
   ap_hook_post_config(Auth_persona_post_config, NULL, NULL, APR_HOOK_MIDDLE);
