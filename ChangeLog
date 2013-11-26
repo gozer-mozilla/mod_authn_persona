@@ -1,6 +1,9 @@
-0.4
+0.5
+0.4 26-Nov-2013
  * Rename persona header to Persona-Assertion as per RFC 6648
+ * Make module non-authoritative by default
  * Support for httpd-2.4
+ * Security Review 2013-11-01 Completed
 0.3 04-Nov-2013
  * Cookies are now Base64URL encoded, no more plain JSON visible
  * Working test suite, via http://personatestuser.org/
