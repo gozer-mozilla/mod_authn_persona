@@ -31,10 +31,10 @@ build/depcomp
 build/install-sh
 build/ltmain.sh
 build/missing
-build/mod_authn_persona.spec
-mod_authn_persona-*.tar.gz
+build/mod_authnz_persona.spec
+mod_authnz_persona-*.tar.gz
 .libs/
-mod_authn_persona.la
+mod_authnz_persona.la
 src/.libs/
 src/*.lo
 
