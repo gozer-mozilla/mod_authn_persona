@@ -403,7 +403,7 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
   dconf->logout_returnto_url_set = 0;
   dconf->cookie_secure = 0;
   dconf->cookie_secure_set = 0;
-  dconf->authoritative = 1;
+  dconf->authoritative = 0;
   dconf->authoritative_set = 0;
   dconf->cookie_name = PERSONA_COOKIE_NAME;
   dconf->cookie_name_set = 0;
