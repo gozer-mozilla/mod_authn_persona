@@ -1,3 +1,4 @@
+0.5
 0.4 26-Nov-2013
  * Rename persona header to Persona-Assertion as per RFC 6648
  * Make module non-authoritative by default

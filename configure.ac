@@ -1,5 +1,5 @@
 AC_PREREQ(2.60)
-AC_INIT(mod_authnz_persona, 0.4, gozer@mozilla.com)
+AC_INIT(mod_authnz_persona, 0.5, gozer@mozilla.com)
 AC_CONFIG_AUX_DIR(build)
 AC_CONFIG_MACRO_DIR([build])
 
