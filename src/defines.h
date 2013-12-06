@@ -30,7 +30,6 @@ typedef struct buffer
 
 typedef struct persona_dir_config
 {
-  char *location;
   char *verifier_url;
   int verifier_url_set;
   char *login_url;
@@ -41,6 +40,8 @@ typedef struct persona_dir_config
   int logout_returnto_url_set;
   char *cookie_name;
   int cookie_name_set;
+  char *cookie_path;
+  int cookie_path_set;
   char *cookie_domain;
   int cookie_domain_set;
   unsigned int cookie_duration;

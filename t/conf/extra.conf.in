@@ -30,6 +30,7 @@ Alias /auth @documentroot@
   # This is insecure, the cookie *should* be sent out via SSL and with the Secure flag on
   AuthPersonaCookieSecure Off
   AuthPersonaLogoutURL    /auth/logout.shtml
+  AuthPersonaCookiePath /auth
   Authname "Persona Login"
   AuthType Persona
   require valid-user
@@ -38,6 +39,7 @@ Alias /auth @documentroot@
 Alias /auth-local @documentroot@
 <Location /auth-local>
   AuthPersonaLocalVerify On
+  AuthPersonaCookiePath /auth-local
   AuthPersonaLogoutURL    /auth-local/logout.shtml
   Authname "Persona Login"
   AuthType Persona

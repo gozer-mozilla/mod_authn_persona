@@ -4,4 +4,3 @@
  - Rename ServerSecret to SessionSecret
  - Cookie
    - CookieClear should simply invoke SendSignedCookie() [duplication]
-   - [bug] Cookie path is wrong when persona is configured with anything but <VirtualHost> or <Location>

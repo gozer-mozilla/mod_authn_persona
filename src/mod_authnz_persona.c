@@ -40,6 +40,7 @@ const char *persona_server_secret_option(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_name(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_domain(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_duration(cmd_parms *, void *, const char *);
+const char *persona_server_cookie_path(cmd_parms *, void *, const char *);
 const char *persona_server_cookie_secure(cmd_parms *, void *, int);
 const char *persona_authoritative(cmd_parms *, void *, int);
 const char *persona_local_verify(cmd_parms *, void *, int);
@@ -75,7 +76,7 @@ static void set_cookie_from_config(persona_dir_config_t * dconf,
   cookie->expires = dconf->cookie_duration;
   cookie->domain = dconf->cookie_domain;
   cookie->secure = dconf->cookie_secure;
-  cookie->path = dconf->location;
+  cookie->path = dconf->cookie_path;
 }
 
 /**************************************************
@@ -392,7 +393,7 @@ static apr_status_t persona_generate_secret(apr_pool_t * p, server_rec *s,
 static void *persona_create_dir_config(apr_pool_t * p, char *path)
 {
   persona_dir_config_t *dconf = apr_palloc(p, sizeof(*dconf));
-  dconf->location = path ? apr_pstrdup(p, path) : "/";
+
   dconf->verifier_url = PERSONA_DEFAULT_VERIFIER_URL;
   dconf->verifier_url_set = 0;
   dconf->login_url = PERSONA_LOGIN_URL;
@@ -405,6 +406,8 @@ static void *persona_create_dir_config(apr_pool_t * p, char *path)
   dconf->cookie_secure_set = 0;
   dconf->authoritative = 0;
   dconf->authoritative_set = 0;
+  dconf->cookie_path = "/";
+  dconf->cookie_path_set = 0;
   dconf->cookie_name = PERSONA_COOKIE_NAME;
   dconf->cookie_name_set = 0;
   dconf->cookie_domain = NULL;
@@ -449,7 +452,14 @@ const char *persona_server_cookie_duration(cmd_parms *cmd, void *cfg,
   dconf->cookie_duration_set = 1;
   return NULL;
 }
-
+const char *persona_server_cookie_path(cmd_parms *cmd, void *cfg,
+                                       const char *arg)
+{
+  persona_dir_config_t *dconf = cfg;
+  dconf->cookie_path = apr_pstrdup(cmd->pool, arg);
+  dconf->cookie_path_set = 1;
+  return NULL;
+}
 const char *persona_server_cookie_name(cmd_parms *cmd, void *cfg,
                                        const char *arg)
 {
@@ -548,9 +558,7 @@ static void *persona_merge_dir_config(apr_pool_t * p, void *parent_conf,
   persona_dir_config_t *child = (persona_dir_config_t *) child_conf;
   persona_dir_config_t *merged = apr_pcalloc(p, sizeof(*merged));
 
-  /* Just use the current location */
-  merged->location = child->location;
-// 
+  persona_merge_parent(cookie_path, merged, parent, child);
   persona_merge_parent(cookie_name, merged, parent, child);
   persona_merge_parent(cookie_domain, merged, parent, child);
   persona_merge_parent(cookie_duration, merged, parent, child);
@@ -597,6 +605,8 @@ static const command_rec Auth_persona_options[] = {
   AP_INIT_TAKE1("AuthPersonaCookieDuration", persona_server_cookie_duration,
                 NULL, RSRC_CONF | OR_AUTHCFG,
                 "Duration of the Persona Cookie"),
+  AP_INIT_TAKE1("AuthPersonaCookiePath", persona_server_cookie_path,
+               NULL, RSRC_CONF | OR_AUTHCFG, "Persona Cookie Path"),		
   AP_INIT_FLAG("AuthPersonaCookieSecure", persona_server_cookie_secure,
                NULL, RSRC_CONF | OR_AUTHCFG, "HTTPS only Persona Cookie"),
   AP_INIT_FLAG("AuthPersonaAuthoritative", persona_authoritative,

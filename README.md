@@ -102,6 +102,11 @@ The authentication page will then reload the desired resource.
 * `AuthPersonaCookieDomain`: (default: None)
 
   The domain that the cookie is valid for, so for instance '.domain.com'
+
+* `AuthPersonaCookiePath`: (default: /)
+
+  The url path the cookie is being set for
+
 * `AuthPersonaCookieSecure`: (default: Off)
 
   If the cookie should be limited to SSL connections or not
