@@ -1,6 +1,20 @@
 mod_authnz_persona is a module for Apache 2.0 or later that allows you to
 quickly add Persona authentication to a site hosted with Apache.
 
+# Use on people.mozilla.org
+
+If you would like to enable LDAP authentication on your Mozilla people space,
+add a file named *.htaccess* in the folder you would like to secure. It should
+have the following contents:
+
+    SSLRequireSSL On
+    AuthType Persona
+    require valid-user
+
+For example, if you would like to require LDAP authentication for https://people.mozilla.org/~username/secure you would put *.htaccess* in *~/public_html/secure/*
+
+Remember to browse the website via HTTPS as it won't work otherwise.
+
 # Installation
 
 First, install the dependencies:
