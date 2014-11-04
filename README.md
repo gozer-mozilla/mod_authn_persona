@@ -11,7 +11,7 @@ have the following contents:
     AuthType Persona
     require valid-user
 
-For example, if you would like to require LDAP authentication for https://people.mozilla.org/~username/secure you would put *.htaccess* in *~/public_html/secure/*
+For example, if you would like to require Persona authentication for https://people.mozilla.org/~username/secure you would put *.htaccess* in *~/public_html/secure/*
 
 Remember to browse the website via HTTPS as it won't work otherwise.
 
